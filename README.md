@@ -10,7 +10,7 @@ installer, that's it — it starts itself in the background).
 Then open **PowerShell** and paste these three lines:
 
 ```powershell
-git clone https://github.com/Ben-K-Jordan/slack-question-analyzer.git
+git clone https://github.com/Ben-Jordan-IBM/slack-question-analyzer.git
 cd slack-question-analyzer
 .\setup.bat
 ```
