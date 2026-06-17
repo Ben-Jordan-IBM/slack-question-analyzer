@@ -1,0 +1,3 @@
+# Dependencies are defined in pyproject.toml; this installs the project
+# in editable mode with dev tools (pytest, ruff).
+-e .[dev]

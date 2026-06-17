@@ -1,0 +1,42 @@
+{
+  "type": "transcript",
+  "comment": "End-to-end fixture: synthetic MFT transcript 3 (13 messages, 13 asks). The occurrence-integrity fixture — hammers recurrence counting, the area that broke five runs straight. Two TRUE recurrences with exact counts (host key verification 3x across non-adjacent dates, partner onboarding 2x), phantom-recurrence bait ('Basically...' / 'I mean...' restatements must stay 1x), a forwarded-quote message where identical text appears twice from ONE source (1x, not 2x), a false-recurrence twin pair sharing heavy vocabulary (rotate PGP keys vs rotate SSH keys — different root cause, must stay apart), and two genuine singletons the rescue pass must leave alone. See mft_test_answer_key_3.md.",
+  "transcript": "mft_test_transcript_3.txt",
+  "expect": {
+    "total_asks": 13,
+    "recurring_topics": 2,
+    "recurring_groups": [
+      {"must_match": ["host key"], "count": 3},
+      {"must_match": ["onboard|new (trading )?partner|partner connection"], "count": 2}
+    ],
+    "feedback_count": 1,
+    "feedback_must_match": ["retry"],
+    "message_asks": [
+      {"contains": "enforce SFTP host key verification", "asks": 1},
+      {"contains": "onboard a new trading partner", "asks": 1},
+      {"contains": "schedule a recurring transfer", "asks": 1},
+      {"contains": "encryption keys used for PGP", "asks": 1},
+      {"contains": "verify the partner's host key", "asks": 1},
+      {"contains": "compress files before sending", "asks": 1},
+      {"contains": "Forwarding from the customer", "asks": 1},
+      {"contains": "streamlined process to set up a new partner", "asks": 1},
+      {"contains": "rotate the SSH keys", "asks": 1},
+      {"contains": "require host key checking", "asks": 1},
+      {"contains": "Google Cloud Storage", "asks": 1},
+      {"contains": "maximum file size", "asks": 1},
+      {"contains": "retry-with-backoff", "asks": 1}
+    ],
+    "support_must_match": [
+      "recurring transfer|every night|midnight",
+      "gzip|zip|compress",
+      "resum"
+    ],
+    "must_not_group": [
+      ["\\bpgp\\b", "\\bssh\\b"]
+    ],
+    "must_stay_singleton": [
+      "google cloud",
+      "maximum file size|max[a-z]* .*file size"
+    ]
+  }
+}

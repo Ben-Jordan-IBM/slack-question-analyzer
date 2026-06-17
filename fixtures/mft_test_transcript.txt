@@ -1,0 +1,92 @@
+MFT Content from the Slack threads (synthetic test set)
+June 9, 2026
+
+Hi team, one of my customers wants to rotate the SSH keys used for their SFTP partner connections but cannot take an outage. Is there a way to roll the keys on a live SFTP listener without dropping current sessions?
+
+-----------------------------------------------------------
+June 9, 2026
+
+Couple of things on wM MFT (SaaS):
+1. Can we set a per-partner bandwidth throttle on outbound transfers so one partner doesn't saturate the link?
+2. If a large file transfer gets interrupted, does the platform support resuming it from where it stopped rather than restarting from the beginning?
+
+-----------------------------------------------------------
+June 8, 2026
+
+Re: wM MFT (SaaS) - what is the recommended way to route an incoming file to different destination folders based on its filename prefix? My thinking is:
+
+* Find task picks up the file
+* read the prefix
+* Move to folder A or folder B depending on the prefix
+
+Is that the right approach, or is there a cleaner pattern?
+
+-----------------------------------------------------------
+June 8, 2026
+
+Customer's scheduled transfers stopped firing right after the daylight saving time change over the weekend. Anyone seen this before? Could the scheduler be running on the wrong timezone? Thanks in advance!
+
+-----------------------------------------------------------
+June 5, 2026
+
+Question on wM MFT (SaaS). When an inbound file fails checksum validation, the customer does not want the whole transfer to hard-fail. How can we handle a checksum mismatch gracefully and route the file to a review folder instead of erroring out?
+
+-----------------------------------------------------------
+June 4, 2026
+
+Re: SFTP keys - is it possible to roll over the SSH host and user keys on an active SFTP connection with zero downtime? The customer cannot drop existing partner sessions during the rotation.
+
+-----------------------------------------------------------
+June 4, 2026
+
+Can we configure wM MFT (SaaS) to encrypt files with PGP before they are sent to a trading partner?
+
+-----------------------------------------------------------
+June 3, 2026
+
+Been stuck on this all morning. For one customer the MFT web UI just spins on login and never loads the dashboard. Other users on the exact same tenant log in fine. Out of ideas.
+
+-----------------------------------------------------------
+June 3, 2026
+
+Seeing this in the server log on 10.15 when a Copy action runs:
+
+2026-06-02 09:14:55,210 ERROR [com.webmethods.mft.transfer][7700] - Transfer aborted unexpectedly
+java.lang.IllegalStateException: Connection pool exhausted for partner endpoint sftp-eu-01
+
+Any idea what triggers this?
+
+-----------------------------------------------------------
+June 2, 2026
+
+Customer product feedback for wM MFT (SaaS), two asks:
+
+1. They would like a dark mode option in the MFT web UI.
+2. They want to be able to export the audit log to CSV directly from the UI.
+
+-----------------------------------------------------------
+June 2, 2026
+
+Does wM MFT support FIPS 140-2 compliant ciphers for a government customer's deployment requirements?
+
+-----------------------------------------------------------
+May 30, 2026
+
+Can we configure wM MFT (SaaS) to compress files into a zip archive before transfer to reduce bandwidth?
+
+-----------------------------------------------------------
+May 30, 2026
+
+How do I purge old completed transfer records from the database? Basically I am after the cleanup process for old transfer history - the customer wants to delete anything older than 90 days.
+
+-----------------------------------------------------------
+May 29, 2026
+
+Customer on 10.15 is asking what the maximum number of concurrent SFTP sessions a single MFT node can sustain is before throughput starts to degrade.
+
+-----------------------------------------------------------
+May 28, 2026
+
+Is there an API or database table to pull per-partner transfer volume totals each month for chargeback reporting back to the business units?
+
+-----------------------------------------------------------

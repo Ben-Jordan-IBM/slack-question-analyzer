@@ -1,0 +1,48 @@
+MFT Content from the Slack threads (synthetic test set 6 - routing edges)
+
+# Every message here is a question, but several should NOT be force-routed into an MFT
+# bucket: off-topic ones, ones that span two buckets equally, and ones too vague to place.
+# The test is routing HUMILITY: send the unplaceable ones to uncertain/review, route the
+# clear ones confidently (and don't dump a question into "uncertain" just because it
+# mentions an error).
+
+June 9, 2026
+
+Unrelated, but does anyone know if the Confluence wiki is down? I can't load any pages.
+
+-----------------------------------------------------------
+June 8, 2026
+
+If a transfer fails its virus scan, does that count against my metered transaction total, or only successful transfers count?
+
+-----------------------------------------------------------
+June 7, 2026
+
+How do I configure an SFTP connection to a new trading partner in MFT?
+
+-----------------------------------------------------------
+June 6, 2026
+
+Is there a limit?
+
+-----------------------------------------------------------
+June 5, 2026
+
+Does anyone know IBM's holiday support hours over the December break?
+
+-----------------------------------------------------------
+June 4, 2026
+
+Does MFT support PGP encryption for outbound files to a partner?
+
+-----------------------------------------------------------
+June 3, 2026
+
+When a scheduled transfer moves a file, does the original get archived or deleted by default?
+
+-----------------------------------------------------------
+June 2, 2026
+
+Why does my SFTP connection drop with "algorithm negotiation failed" for one specific partner?
+
+-----------------------------------------------------------

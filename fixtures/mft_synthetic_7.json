@@ -1,0 +1,63 @@
+{
+  "type": "transcript",
+  "comment": "End-to-end fixture: synthetic MFT transcript 7 (24 messages, 24 asks) - the only fixture at realistic VOLUME. Tests exact counts under load, RANKING of four recurring groups (4x/3x/2x/2x), and EMERGING-category detection: three AI/agentic questions that fit no existing bucket must surface in review as a coherent cluster (the 'a category is missing' radar), never be force-fitted into Monitoring/Errors/File-handling. This fixture motivated the group-then-route reorder: under route-first, the timeout 4x caught 3 (the fourth routed elsewhere), the purge 2x never fired (its halves landed in two buckets), and the AI cluster was scattered before anything could check its coherence. See mft_test_answer_key_7.md.",
+  "transcript": "mft_test_transcript_7.txt",
+  "expect": {
+    "total_asks": 24,
+    "recurring_topics": 4,
+    "recurring_groups": [
+      {"must_match": ["timeout|timing out|times out", "sftp"], "count": 4},
+      {"must_match": ["alert|notif", "fail"], "count": 3},
+      {"must_match": ["onboard|new (trading )?partner|partner connection"], "count": 2},
+      {"must_match": ["purge|delete old transfer history|older than 90"], "count": 2}
+    ],
+    "feedback_count": 2,
+    "feedback_must_match": ["drag.and.drop|drag.drop", "cron"],
+    "review_must_match": [
+      "ai integration agent|plain.english",
+      "agentic ai|transformation steps",
+      "observability agent|auto.remediate"
+    ],
+    "must_stay_singleton": [
+      "ftps|explicit tls",
+      "data lake",
+      "chmod|unix file permissions",
+      "exclude .*(file )?extensions",
+      "audit log",
+      "webhook"
+    ],
+    "message_asks": [
+      {"contains": "increase the SFTP connection timeout", "asks": 1},
+      {"contains": "FTPS with explicit TLS", "asks": 1},
+      {"contains": "notified when a transfer fails", "asks": 1},
+      {"contains": "AI Integration Agent", "asks": 1},
+      {"contains": "onboard a new trading partner", "asks": 1},
+      {"contains": "Azure Data Lake", "asks": 1},
+      {"contains": "what setting controls how long", "asks": 1},
+      {"contains": "max retry count", "asks": 2},
+      {"contains": "purge transfer records older than 90", "asks": 1},
+      {"contains": "drag-and-drop flow builder", "asks": 1},
+      {"contains": "alert on transfer failures", "asks": 1},
+      {"contains": "agentic AI decide", "asks": 1},
+      {"contains": "chmod", "asks": 1},
+      {"contains": "extend the SFTP timeout window", "asks": 1},
+      {"contains": "exclude certain file extensions", "asks": 1},
+      {"contains": "office hours", "asks": 0},
+      {"contains": "brand-new partner connection", "asks": 1},
+      {"contains": "AI Observability Agent", "asks": 1},
+      {"contains": "configure failure alerts", "asks": 1},
+      {"contains": "retention period for transfer audit logs", "asks": 1},
+      {"contains": "timing out on slow partner links", "asks": 1},
+      {"contains": "delete old transfer history on a schedule", "asks": 1},
+      {"contains": "triggered by an incoming webhook", "asks": 1},
+      {"contains": "full cron expressions", "asks": 1}
+    ],
+    "support_must_match": [
+      "max retry count",
+      "custom label"
+    ],
+    "must_not_match": [
+      "office hours|thursdays"
+    ]
+  }
+}

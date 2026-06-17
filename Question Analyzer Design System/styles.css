@@ -1,0 +1,27 @@
+/* ============================================================
+   Question Analyzer Design System — global entry point
+   IBM Carbon foundations adapted for the Slack Question Analyzer.
+   Consumers link THIS file only.
+   ============================================================ */
+
+@import url('tokens/fonts.css');
+@import url('tokens/colors.css');
+@import url('tokens/typography.css');
+@import url('tokens/spacing.css');
+@import url('tokens/elevation.css');
+
+/* ---- Light base reset shared by all surfaces ---- */
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: var(--type-body-01);
+  line-height: var(--lh-normal);
+  color: var(--text-primary);
+  background: var(--background);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}

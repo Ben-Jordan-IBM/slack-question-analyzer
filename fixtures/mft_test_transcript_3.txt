@@ -1,0 +1,66 @@
+MFT Content from the Slack threads (synthetic test set 3)
+June 9, 2026
+
+How do we enforce SFTP host key verification so we only connect to known partner servers?
+
+-----------------------------------------------------------
+June 8, 2026
+
+What is the fastest way to onboard a new trading partner end to end in wM MFT (SaaS)?
+
+-----------------------------------------------------------
+June 7, 2026
+
+How do I schedule a recurring transfer? Basically I want it to run every night at midnight automatically - what is the way to set that up?
+
+-----------------------------------------------------------
+June 6, 2026
+
+How do I rotate the encryption keys used for PGP file encryption in MFT?
+
+-----------------------------------------------------------
+June 5, 2026
+
+Re: SFTP security - can we make MFT verify the partner's host key before it connects?
+
+-----------------------------------------------------------
+June 4, 2026
+
+Can we compress files before sending? I mean is there a built-in way to gzip or zip the payload prior to transfer?
+
+-----------------------------------------------------------
+June 3, 2026
+
+Forwarding from the customer: "Does MFT support resuming an interrupted transfer from where it stopped?" Basically they are asking - does MFT support resuming interrupted transfers?
+
+-----------------------------------------------------------
+June 2, 2026
+
+Is there a streamlined process to set up a new partner connection from scratch in MFT?
+
+-----------------------------------------------------------
+June 1, 2026
+
+How do I rotate the SSH keys used for SFTP partner connections?
+
+-----------------------------------------------------------
+May 30, 2026
+
+Is there a setting to require host key checking on outbound SFTP connections?
+
+-----------------------------------------------------------
+May 29, 2026
+
+Does wM MFT support transferring files to Google Cloud Storage buckets as a destination?
+
+-----------------------------------------------------------
+May 28, 2026
+
+What is the maximum file size MFT can handle in a single transfer?
+
+-----------------------------------------------------------
+May 27, 2026
+
+Feature request: the customer would like the UI to let you configure a retry-with-backoff policy without editing config files.
+
+-----------------------------------------------------------

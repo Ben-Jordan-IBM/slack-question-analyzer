@@ -1,0 +1,50 @@
+<!-- @startingPoint section="Analyzer" subtitle="Dashboard + Week in Review, with upload & email sign-in" viewport="1280x800" -->
+<!-- @dsCard group="Analyzer" viewport="1280x800" name="Question Analyzer — app" subtitle="Ranked dashboard, animated Week in Review, transcript upload & email sign-in" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Question Analyzer</title>
+<link rel="stylesheet" href="../../styles.css" />
+<style>
+  html, body { height: 100%; }
+  body { margin: 0; background: #fff; }
+  input::placeholder { color: var(--text-placeholder); }
+  [data-lucide] { display: inline-flex; }
+
+  @keyframes qa-spin { to { transform: rotate(360deg); } }
+  [data-lucide="loader"] { animation: qa-spin 0.9s linear infinite; transform-origin: center; }
+
+  @keyframes qa-ping { 0% { transform: scale(1); opacity: .7; } 80%, 100% { transform: scale(2.8); opacity: 0; } }
+  .qa-pulse { transform-box: fill-box; transform-origin: center; animation: qa-ping 2.2s var(--ease-productive) infinite; }
+
+  @keyframes qa-pop { 0% { transform: scale(.4); opacity: 0; } 60% { transform: scale(1.08); } 100% { transform: scale(1); opacity: 1; } }
+  .qa-pop { animation: qa-pop 420ms var(--ease-entrance) both; }
+
+  @keyframes qa-view-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+  .qa-view { animation: qa-view-in 380ms var(--ease-entrance) both; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .qa-pulse, [data-lucide="loader"] { animation: none; }
+  }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js"></script>
+<script src="../../_ds_bundle.js?v=1"></script>
+<script src="api.js"></script>
+<script type="text/babel" src="Icon.jsx"></script>
+<script type="text/babel" src="anim.jsx"></script>
+<script type="text/babel" src="AppHeader.jsx"></script>
+<script type="text/babel" src="RankedRow.jsx"></script>
+<script type="text/babel" src="DashboardView.jsx"></script>
+<script type="text/babel" src="WeekView.jsx"></script>
+<script type="text/babel" src="Modals.jsx"></script>
+<script type="text/babel" src="App.jsx"></script>
+</body>
+</html>

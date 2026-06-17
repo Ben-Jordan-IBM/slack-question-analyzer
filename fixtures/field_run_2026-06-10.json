@@ -1,0 +1,22 @@
+{
+  "comment": "Labeled regression fixture from the real 2026-06-10 field run (v2.11.0, 17 questions). Run 'slack-analyzer eval fixtures/field_run_2026-06-10.json' after ANY prompt, anchor, or threshold change: it converts 'seems better' into 'measurably better'. 'bucket' = expected taxonomy bucket name ('review' = should be flagged needs-review). 'group' = a shared key for questions that belong in one topic group (null = genuinely unique). The three thread questions share a group on purpose: the third was stranded in the v2.11.0 run and is the singleton-rescue target.",
+  "questions": [
+    {"text": "Is there any way for an MFT customer to avoid running out of threads?", "date": "June 5, 2026", "bucket": "Scheduling & Performance", "group": "thread-scaling"},
+    {"text": "Can the thread use issue be addressed by scaling vertically or horizontally?", "date": "June 5, 2026", "bucket": "Scheduling & Performance", "group": "thread-scaling"},
+    {"text": "Is there any way around the thread use issue in MFT customers with high scheduled actions and low threads allocated?", "date": "June 5, 2026", "bucket": "Scheduling & Performance", "group": "thread-scaling"},
+    {"text": "Does a client need to setup one group each to monitor b2b, IS, MFT independently for monitoring and alerting using IWHI e2e monitoring?", "date": "June 9, 2026", "bucket": "Monitoring & Alerting", "group": null},
+    {"text": "Is there an REST API that can deactivate a list of Scheduled Actions and Post Processing Actions?", "date": "June 5, 2026", "bucket": "Scheduling & Performance", "group": null},
+    {"text": "Can we trigger transfers via REST instead of the scheduler?", "date": "June 5, 2026", "bucket": "Scheduling & Performance", "group": null},
+    {"text": "Is there a way to group Actions and filter by group name in wM MFT (SaaS)?", "date": "June 3, 2026", "bucket": "File Handling", "group": null},
+    {"text": "Can we get a custom error that the script can return?", "date": "June 3, 2026", "bucket": "Errors, Logs & Bugs", "group": null},
+    {"text": "Can the Copy Task to Target System be configured to bypass antivirus scanning errors?", "date": "June 5, 2026", "bucket": "Antivirus & File Scanning", "group": null},
+    {"text": "How can we configure a notification via email to a designated administrator when an antivirus is detected?", "date": "June 5, 2026", "bucket": "Antivirus & File Scanning", "group": "virus-notifications"},
+    {"text": "Can we move a file to a quarantine folder and send a mail or is it either one or the other?", "date": "June 2, 2026", "bucket": "Antivirus & File Scanning", "group": "virus-notifications"},
+    {"text": "Can tasks be configured to find file001.txt and file002.txt in a folder and merge them with a Flow Service?", "date": "June 5, 2026", "bucket": "File Handling", "group": null},
+    {"text": "Can I check if the WebMethods Metering Agent comes pre-installed with WebMethods Capabilities Container images?", "date": "June 9, 2026", "bucket": "Metering & Licensing", "group": null},
+    {"text": "How can customers estimate their potential number of mft transactions in the absence of Metering server?", "date": "June 2, 2026", "bucket": "Metering & Licensing", "group": null},
+    {"text": "How can users check their own transaction statistics similar to commercial metering reports?", "date": "May 30, 2026", "bucket": "Metering & Licensing", "group": null},
+    {"text": "Do we support Container-level tokens for Azure Blob Containers against Virtual Folders in Gen-1 SaaS MFT?", "date": "June 5, 2026", "bucket": "Connectivity & Authentication", "group": null},
+    {"text": "Can the platform Certificate store integrate with external key vault like Hashicorp?", "date": "June 3, 2026", "bucket": "Connectivity & Authentication", "group": null}
+  ]
+}

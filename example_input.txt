@@ -1,0 +1,150 @@
+MFT Content from the Slack threads
+June 9, 2026
+
+Hi Team, Can I check if the WebMethods Metering Agent comes pre-installed with WebMethods Capabilities Container images? for ex. WM MFT. so customer just need to configure to point to location of on-prem metering server?
+
+-----------------------------------------------------------
+June 9, 2026
+
+Anyone here have some good examples on using the IWHI e2e monitoring for monitoring and alerting.
+I see the docs for setting up alerts and they involve kpis like error rates, transaction/response times etc.
+What if a client just wants to have a straight up monitor for one application and just needs to know when an error occurs once and needs to be alerted on it.  Does this mean he has to setup one  group each to monitor b2b, IS, MFT independently ?
+
+Or maybe the mindset for monitoring / alerting needs to be changed for integration products?
+How are real clients out there using monitoring/alerting from IWHI?
+thank you
+
+-----------------------------------------------------------
+June 5, 2026
+
+Re: wM MFT (SaaS), what would be the best way to merge content of two (or multiple) files
+
+* Find file001.txt in folder
+* Find file002.txt in folder
+* Invoke Flow Service to merge the files?
+
+
+-----------------------------------------------------------
+June 5, 2026
+
+Re: wM MFT (SaaS), customer product feedback. They would like to
+
+
+1. See a graphical representation of the Action log, that should status of each task, complete, in progress, not stated.
+2. Is there a way to group Actions, and allow users to filter Actions by group name?
+
+
+-----------------------------------------------------------
+June 5, 2026
+
+Hi All -- one of our MFT customers is concerned about thread use.  In their current implementation - they will create a little more 8600 scheduled actions.  Each scheduled actions runs "on average" about 5 minutes apart.  They are running a 2-node cluster.  Each IS has a 1000 threads allocated (With the Scheduler Thread throttle set to 75%).  The servers are Windows Servers, each has: 16 GB of RAM and 4 Cores.  They are on 10.15 coreFix19.
+
+The concern/reality is running out of threads.  Is there any way around this? Besides:
+
+* Scale Vertically:  Increase the number of cores -- allowing to increase the number of threads.
+* Scale Horizontally:  Spread the processes to more IS'es.
+
+Anyone have any thoughts?
+
+-----------------------------------------------------------
+June 5, 2026
+
+Re: wM MFT (SaaS), is there an REST API that can deactivate a list of Scheduled Actions and Post Processing Actions?
+
+-----------------------------------------------------------
+June 5, 2026
+
+Hi team, I have a customer who's configuring an Azure Blob Container against a Virtual Folder in Gen-1 SaaS MFT. I have verified that the SAS token is valid, the Azure Container exists, correct IPs allowed, protocols allowed, permissions allowed (CRUD), etc.
+
+There's no issue when they use an Storage Account-level token, but when they use a Container-level token they get an authorization failure. Do we support Container-level tokens? Here's the error and screenshot for reference.
+
+Connection failed Azure Message: This request is not authorized to perform this operation. RequestId:54fe1bd0-a01e-005e-42e9-f4eb26000000 Time:2026-06-05T12:48:59.3553489Z
+
+-----------------------------------------------------------
+June 5, 2026
+
+Hi #wm-mft-swat  Customer on tenant https://fx.ei.bekaert.com/WmMFT/  facing issue   where a Copy Task to Target System is failing due to an antivirus scanning error.
+
+Error:
+Error executing Copy to Target system : Exception while scanning for virus
+
+Timestamp: 05062026105848  The failure occurs during the antivirus scanning phase, not during connectivity or transfer  Please advise
+
+-----------------------------------------------------------
+June 5, 2026
+
+Question on wM MFT (SaaS) - The use of a control file to trigger a file transfer
+I know have a feature in the Find task that check for stability before transfer, but most customer uses a control file to indicate the data file is ready for transfer. For example, a file001.dat is uploading, and on upload complete, a file001.ctrl is created.
+
+Can we configured the following tasks to do this?
+
+* Find Task, on finding a file with {name}.ctrl
+* Move  the file {name}.dat to the dest folder
+
+
+-----------------------------------------------------------
+June 5, 2026
+
+Question on wM MFT (SaaS) - Anti virus
+When Virus is detected, how can we configure a notification via email to a designated administrator?
+
+-----------------------------------------------------------
+June 3, 2026
+
+In Debug log we see message 2026-06-02 13:37:20,626 ERROR [com.webmethods.mft.event               ][8300] - Error while fetching UI settings for user.
+java.lang.NullPointerException: Cannot invoke "com.webmethods.mft.log.MFTLogger.trace(java.lang.Throwable, java.lang.String, java.lang.Object[])" because "com.webmethods.mft.db.Datastore.logger" is null
+
+-----------------------------------------------------------
+June 3, 2026
+
+Hello #wm-mft-swat  Userjust installed 12 version and cannot open MFT UI , error is 2026-06-02 13:37:20,727 ERROR [com.webmethods.mft.asset               ][9999] - An internal error has occurred while executing the service. Contact your System Administrator.
+com.webmethods.mft.exception.MFTServiceException: An internal error has occurred while executing the service. Contact your System Administrator.
+              at com.webmethods.
+
+-----------------------------------------------------------
+June 3, 2026
+
+Questions on IWHI - wM MFT.
+
+1. The platform provides scheduled action that "triggers" file transfer at specific time (or interval). Is there a way to "triggers" a file transfer via an REST API call. 
+2. Can the platform Certificate store integrates with external key vault (like Hashicorp)?
+
+
+
+-----------------------------------------------------------
+June 2, 2026
+
+Hi team,
+My prospect is looking for a mft solution to deploy on premise.
+As part of a post processing action, they would like to launch a virus scanner.
+Based on the result they would like to move the file either in a quarantine or to approved folder.
+If it is not passing the virus scan a mail should also be sent.
+
+I find the way to launch the script.
+If the script is not exit 0 a failure can be catched and mail sent.
+I missing
+
+* can we get a custom error that the script (sh file) can returns ? 
+* can we move the file to a quarantine folder and send a mail or is it either one or the other (only one configurable action)? 
+
+
+
+-----------------------------------------------------------
+June 2, 2026
+
+Hi Arjiit, means in the absence of Metering server, how can customer estimate their potential number of mft transactions, to review if their entitlements are sufficient to cover their usage.
+
+-----------------------------------------------------------
+May 30, 2026
+
+Hi Team,
+
+One of my customers is currently using WM MFT 10.15. Beyond the metering server reports, they would like to know how they can check their own transaction statistics similar to what the metering report provides for commercial purposes. For ex. number of inbound and outbound transaction counts along with file size measurements (e.g., every 5 MB).
+
+I am aware of the transaction logs feature in the Active Transfer Server UI, but this does not seem suitable for commercial calculations. It would require extensive manual effort to measure inbound/outbound transactions with file size tracking.
+
+Is there any command, API, log, or database table that can provide monthly API call statistics or detailed file transfer information? Ideally, something that serves as the true source of the metering reports.
+
+Thanks.
+
+-----------------------------------------------------------

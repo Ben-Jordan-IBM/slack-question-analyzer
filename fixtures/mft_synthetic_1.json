@@ -1,0 +1,49 @@
+{
+  "type": "transcript",
+  "comment": "End-to-end fixture: synthetic MFT transcript 1 (15 messages, 17 asks). Every message is a planted trap — see mft_test_answer_key.md for the trap map. Runs the FULL pipeline (extraction included) and asserts the answer key's headline numbers: silent drops, over-splitting, verb drift, fake recurrence, and feedback misrouting all happen before routing, so the question-level fixture can't see them. 'contains' markers must sit in the first 200 chars of their message (original_message is capped at 200).",
+  "transcript": "mft_test_transcript.txt",
+  "expect": {
+    "total_asks": 17,
+    "recurring_topics": 1,
+    "recurring_must_match": ["rotat|roll", "key"],
+    "recurring_groups": [
+      {"must_match": ["rotat|roll", "key"], "count": 2}
+    ],
+    "feedback_count": 2,
+    "feedback_must_match": ["dark mode", "audit"],
+    "message_asks": [
+      {"contains": "rotate the SSH keys", "asks": 1},
+      {"contains": "Couple of things", "asks": 2},
+      {"contains": "filename prefix", "asks": 1},
+      {"contains": "daylight saving", "asks": 1},
+      {"contains": "checksum validation", "asks": 1},
+      {"contains": "roll over the SSH host", "asks": 1},
+      {"contains": "encrypt files with PGP", "asks": 1},
+      {"contains": "spins on login", "asks": 1},
+      {"contains": "Copy action runs", "asks": 1},
+      {"contains": "dark mode", "asks": 2},
+      {"contains": "FIPS 140-2", "asks": 1},
+      {"contains": "zip archive", "asks": 1},
+      {"contains": "purge old completed transfer records", "asks": 1},
+      {"contains": "concurrent SFTP sessions", "asks": 1},
+      {"contains": "chargeback reporting", "asks": 1}
+    ],
+    "support_must_match": [
+      "throttle|bandwidth",
+      "resum|interrupt",
+      "checksum",
+      "connection pool|copy|transfer aborted|exhausted|sftp-eu",
+      "login|log in|spins",
+      "fips",
+      "purge|90 day|older than 90",
+      "concurrent sftp|sftp sessions",
+      "chargeback|volume totals|per-partner.*volume"
+    ],
+    "must_not_match": [
+      "(bypass|disable|skip|turn off)[^.?!]*(checksum|validation)"
+    ],
+    "must_not_group": [
+      ["\\bpgp\\b", "\\bzip\\b|compress"]
+    ]
+  }
+}

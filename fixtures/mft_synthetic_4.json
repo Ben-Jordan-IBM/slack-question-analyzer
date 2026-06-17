@@ -1,0 +1,66 @@
+{
+  "type": "transcript",
+  "comment": "End-to-end fixture: synthetic MFT transcript 4 (8 threads, 9 asks). First exercise of the Answered metric: '>' quoted lines are thread replies that must attach to their parent (answered = 3: timeout, SHA-256, auto-purge) and must NEVER be extracted as questions (the T5 reply is itself a question — a responder's clarifying question is not an ask). Promises ('let me check') and clarifying questions do NOT count as answers; T6 proves answered is per-question, not per-thread (same message: retention unanswered, auto-purge answered). Also the tokenization stress: 10.15.2 / approx. / i.e. / e.g. in one sentence, and a URL + '10.15 CF19' in another — each must stay ONE whole question. See mft_test_answer_key_4.md.",
+  "transcript": "mft_test_transcript_4.txt",
+  "expect": {
+    "total_asks": 9,
+    "recurring_topics": 0,
+    "feedback_count": 0,
+    "answered_count": 3,
+    "answered_must_match": [
+      "timeout|timing out",
+      "sha-?256|integrity",
+      "purge|older than"
+    ],
+    "answered_must_not_match": [
+      "throttle|bandwidth",
+      "sharepoint",
+      "intermittent",
+      "retention",
+      "max[a-z]* .*(file )?size|5 ?gb",
+      "403"
+    ],
+    "message_asks": [
+      {
+        "contains": "increase the SFTP connection timeout",
+        "asks": 1
+      },
+      {
+        "contains": "throttle bandwidth per partner",
+        "asks": 1
+      },
+      {
+        "contains": "SharePoint Online",
+        "asks": 1
+      },
+      {
+        "contains": "SHA-256 checksums",
+        "asks": 1
+      },
+      {
+        "contains": "failing intermittently to partner X",
+        "asks": 1
+      },
+      {
+        "contains": "Two things for the wM MFT",
+        "asks": 2
+      },
+      {
+        "contains": "approx. 5GB",
+        "asks": 1
+      },
+      {
+        "contains": "10.15 CF19",
+        "asks": 1
+      }
+    ],
+    "support_must_match": [
+      "5 ?gb|single.transfer size|max[a-z]* .*size",
+      "403"
+    ],
+    "must_not_match": [
+      "same time of day",
+      "connectionTimeout|cleanup scheduler|virtual folder settings"
+    ]
+  }
+}

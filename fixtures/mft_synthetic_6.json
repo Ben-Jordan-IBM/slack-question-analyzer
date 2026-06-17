@@ -1,0 +1,71 @@
+{
+  "type": "transcript",
+  "comment": "End-to-end fixture: synthetic MFT transcript 6 (8 messages, 8 asks). The routing-humility fixture — exercises the abstain/0/review path no other fixture stresses. Four questions have a clear home and must route confidently; four must NOT be force-bucketed: two off-topic (Confluence down, IBM holiday hours), one genuinely split between two buckets (does a virus-scan failure count against metering), one too vague to place ('Is there a limit?'). The key control is the inverse trap: the 'algorithm negotiation failed' question QUOTES an error but has an unmistakable subject (SFTP connectivity) and must route confidently — an error string is not ambiguity. See mft_test_answer_key_6.md. The virus-scan-vs-metering question follows the answer key's sanctioned alternative: a DOCUMENTED convention (taxonomy comment: scan-billing interaction questions live in Antivirus) rather than abstention - asserted as a consistent route, never a silent coin-flip.",
+  "transcript": "mft_test_transcript_6.txt",
+  "expect": {
+    "total_asks": 8,
+    "recurring_topics": 0,
+    "feedback_count": 0,
+    "message_asks": [
+      {
+        "contains": "Confluence wiki",
+        "asks": 1
+      },
+      {
+        "contains": "count against my metered",
+        "asks": 1
+      },
+      {
+        "contains": "SFTP connection to a new trading partner",
+        "asks": 1
+      },
+      {
+        "contains": "Is there a limit?",
+        "asks": 1
+      },
+      {
+        "contains": "holiday support hours",
+        "asks": 1
+      },
+      {
+        "contains": "PGP encryption for outbound",
+        "asks": 1
+      },
+      {
+        "contains": "archived or deleted",
+        "asks": 1
+      },
+      {
+        "contains": "algorithm negotiation failed",
+        "asks": 1
+      }
+    ],
+    "review_must_match": [
+      "confluence",
+      "holiday|support hours",
+      "is there a limit"
+    ],
+    "routed_must_match": [
+      {
+        "match": "algorithm negotiation",
+        "bucket": "Connectivity"
+      },
+      {
+        "match": "sftp connection to a new|new trading partner",
+        "bucket": "Connectivity|Install"
+      },
+      {
+        "match": "pgp",
+        "bucket": "."
+      },
+      {
+        "match": "archived or deleted|original (file|get)|file get(s)? (archived|deleted)|when a (scheduled )?transfer moves",
+        "bucket": "."
+      },
+      {
+        "match": "count against|metered transaction",
+        "bucket": "Antivirus|Metering"
+      }
+    ]
+  }
+}

@@ -1,0 +1,53 @@
+{
+  "type": "transcript",
+  "comment": "End-to-end fixture: synthetic MFT transcript 2 (14 messages, 16 asks). The calibration-pair fixture — collapse traps (M1-M4 must each yield ONE ask) set against split controls (M5/M6 must each yield TWO), plus the build-it vs does-it-exist feedback gate (feedback must be exactly {bulk-edit, heat-map}; bulk-DEACTIVATE and 0-byte stay in support). See mft_test_answer_key_2.md. NOTE: the answer key says recurring = exactly 1 (concurrency) — the Slack-alert+Kafka and archiving+encoding pairs observed merging in the v2.21 field run are adjudicated FALSE merges and asserted apart here.",
+  "transcript": "mft_test_transcript_2.txt",
+  "expect": {
+    "total_asks": 16,
+    "recurring_topics": 1,
+    "recurring_must_match": ["concurren|at the same time|cap"],
+    "feedback_count": 2,
+    "feedback_must_match": ["bulk edit", "heat-?map"],
+    "feedback_must_not_match": ["deactivate", "0 bytes|empty.*file"],
+    "message_asks": [
+      {"contains": "retry policy", "asks": 1},
+      {"contains": "archive files after a successful transfer", "asks": 1},
+      {"contains": "Slack or Teams alert", "asks": 1},
+      {"contains": "wrong encoding", "asks": 1},
+      {"contains": "Two unrelated questions", "asks": 2},
+      {"contains": "mutual TLS", "asks": 2},
+      {"contains": "bulk edit of multiple scheduled actions", "asks": 1},
+      {"contains": "bulk-deactivate", "asks": 1},
+      {"contains": "0 bytes", "asks": 1},
+      {"contains": "concurrent transfers running on a node", "asks": 1},
+      {"contains": "cap how many transfers", "asks": 1},
+      {"contains": "IBM MQ", "asks": 1},
+      {"contains": "malformed file", "asks": 1},
+      {"contains": "heat-map view", "asks": 1}
+    ],
+    "support_must_match": [
+      "retry|try again",
+      "archiv",
+      "slack|teams|alert",
+      "encoding",
+      "ip range",
+      "maintenance window",
+      "mutual tls",
+      "kafka",
+      "deactivat|bulk.disable|disable (many|multiple|several|a set|scheduled)",
+      "0 bytes|empty",
+      "ibm mq",
+      "reject|malformed"
+    ],
+    "must_not_match": [
+      "disable[^.?!]*(validation|listener)",
+      "stop the listener"
+    ],
+    "must_not_group": [
+      ["slack|teams", "kafka"],
+      ["archiv", "encoding"],
+      ["ip range", "maintenance window"],
+      ["mutual tls", "kafka"]
+    ]
+  }
+}

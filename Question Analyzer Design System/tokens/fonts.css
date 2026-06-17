@@ -1,0 +1,7 @@
+/* ============================================================
+   FONTS — IBM Plex family (SIL OFL, open source)
+   Loaded from Google Fonts CDN. To self-host, swap these
+   @import lines for local @font-face rules + ttf binaries.
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Serif:wght@300;400;500&display=swap');

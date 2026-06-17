@@ -1,0 +1,54 @@
+{
+  "version": 3,
+  "comment": "Routing taxonomy: questions are sorted into these buckets by embedding similarity to each bucket's 'anchor' description before any clustering. Anchors are written in ASKERS' language (symptoms, goals, the messy way people describe problems), not documentation language - that's what the embeddings actually match against. 'category' is the fixed merge map. Edit freely; bump 'version' when you do. Convention: questions about the INTERACTION of scanning and metering/billing ('does a failed scan count against my transactions?') live in Antivirus & File Scanning - the scan behaviour is what needs explaining.",
+  "buckets": [
+    {
+      "id": 1,
+      "name": "Antivirus & File Scanning",
+      "anchor": "Virus scanning problems and setup: the copy task fails during the virus scan, exception while scanning for virus, a file got flagged as infected, where do quarantined files go, can we move the file to a quarantine folder, send an email when a virus is detected, scan errors during transfer, malware detection, ICAP scanner integration, antivirus blocking transfers",
+      "category": "File Operations"
+    },
+    {
+      "id": 2,
+      "name": "Metering & Licensing",
+      "anchor": "Transaction counts and licensing: how do customers check their own transaction statistics, transaction numbers don't match the metering report, estimating monthly mft transactions, the metering agent and metering server, is the metering agent pre-installed, pointing to an on-prem metering server, usage metering for billing, license keys and licensing terms, commercial metering reports",
+      "category": "Licensing & Metering"
+    },
+    {
+      "id": 3,
+      "name": "Scheduling & Performance",
+      "anchor": "Scheduled actions and performance worries: running out of threads, thread use issues with many scheduled actions, threads allocated per Integration Server, can we scale vertically or horizontally, adding cores or cluster nodes, the scheduler fires too many jobs, cron schedules, deactivating or disabling a list of scheduled actions, triggering transfers without the scheduler, REST APIs for scheduled actions, system slow under load, throughput tuning",
+      "category": "Operations & Performance"
+    },
+    {
+      "id": 4,
+      "name": "File Handling",
+      "anchor": "Moving and managing files and actions: find a file in a folder, the file just sits there and never transfers, move or copy or rename the file after finding it, merge the content of two files, control files (.ctrl) that trigger processing of data files, post-processing actions, file triggers and folder monitoring, archiving transferred files, anything about the Action log - grouping actions, filtering actions by group name, a graphical view of action status, file name patterns",
+      "category": "File Operations"
+    },
+    {
+      "id": 5,
+      "name": "Connectivity & Authentication",
+      "anchor": "Connections and credentials failing or being secured: SFTP connection keeps getting refused, FTPS and HTTPS endpoints, authorization failure with an Azure Blob container token, container-level tokens against virtual folders, AWS S3 buckets, OAuth and access tokens, certificates and the certificate store, integrating with an external key vault like HashiCorp, SSH keys, credentials, proxies and firewalls blocking transfers, partner cannot connect",
+      "category": "Platform & Connectivity"
+    },
+    {
+      "id": 6,
+      "name": "Monitoring & Alerting",
+      "anchor": "Watching the system and getting alerted: monitor one application and get alerted the moment an error occurs, end-to-end e2e monitoring, IWHI monitoring and alerting, setting up monitoring groups for b2b or IS or MFT, email notifications to an administrator, dashboards and health checks, how are real clients doing monitoring, alerting on failures",
+      "category": "Operations & Performance"
+    },
+    {
+      "id": 7,
+      "name": "Errors, Logs & Bugs",
+      "anchor": "Something is broken and the logs show it: NullPointerException in the debug log, a stack trace while fetching settings, the UI won't open after installing a new version, transfers fail with an unexpected error, can a script return a custom error code, a non-zero exit status from an sh file, reading error and debug logs, reporting a defect, it worked before the upgrade and now it doesn't",
+      "category": "Operations & Performance"
+    },
+    {
+      "id": 8,
+      "name": "Install, Upgrade & Admin",
+      "anchor": "Installing, upgrading, administering and onboarding: install or upgrade to a new version, container images and what comes pre-installed in them, onboarding a new trading partner end to end, the steps to set up a new partner from scratch, fastest way to get a new partner live, provisioning and initial setup workflow, user management, roles and permissions, who can see what, configuring UI settings for users, admin REST APIs for automation, migrating between environments, Gen-1 versus SaaS versions",
+      "category": "Platform & Connectivity"
+    }
+  ]
+}
