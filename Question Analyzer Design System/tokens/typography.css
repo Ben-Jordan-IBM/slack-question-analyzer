@@ -1,0 +1,53 @@
+/* ============================================================
+   TYPOGRAPHY — IBM Plex type system (Carbon productive scale)
+   ============================================================ */
+
+:root {
+  /* Families */
+  --font-sans: 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+  --font-serif: 'IBM Plex Serif', Georgia, serif;
+
+  /* Weights */
+  --weight-light: 300;
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+
+  /* ---- Type scale (size / line-height) ---- */
+  --type-code-01: 0.75rem;        /* 12px mono */
+  --type-label-01: 0.75rem;       /* 12px */
+  --type-helper-01: 0.75rem;      /* 12px */
+  --type-body-compact: 0.875rem;  /* 14px */
+  --type-body-01: 0.875rem;       /* 14px */
+  --type-body-02: 1rem;           /* 16px */
+  --type-heading-01: 0.875rem;    /* 14px 600 */
+  --type-heading-02: 1rem;        /* 16px 600 */
+  --type-heading-03: 1.25rem;     /* 20px */
+  --type-heading-04: 1.75rem;     /* 28px */
+  --type-heading-05: 2rem;        /* 32px */
+  --type-heading-06: 2.625rem;    /* 42px light */
+  --type-heading-07: 3.375rem;    /* 54px light */
+  --type-display-01: 4.25rem;     /* 68px light */
+
+  /* Line heights */
+  --lh-tight: 1.143;   /* @kind other */
+  --lh-snug: 1.25;     /* @kind other */
+  --lh-normal: 1.4;    /* @kind other */
+  --lh-relaxed: 1.5;   /* @kind other */
+
+  /* Letter spacing — Carbon tightens large display, opens small caps labels */
+  --tracking-display: -0.02em;
+  --tracking-normal: 0;
+  --tracking-label: 0.02em;
+  --tracking-caps: 0.32px;
+}
+
+/* Optional utility classes (components mostly inline their type) */
+.type-display { font-family: var(--font-sans); font-weight: var(--weight-light); font-size: var(--type-heading-06); line-height: var(--lh-snug); letter-spacing: var(--tracking-display); }
+.type-h3 { font-family: var(--font-sans); font-weight: var(--weight-regular); font-size: var(--type-heading-03); line-height: var(--lh-snug); }
+.type-h2 { font-family: var(--font-sans); font-weight: var(--weight-semibold); font-size: var(--type-heading-02); line-height: var(--lh-relaxed); }
+.type-body { font-family: var(--font-sans); font-weight: var(--weight-regular); font-size: var(--type-body-02); line-height: var(--lh-relaxed); }
+.type-body-compact { font-family: var(--font-sans); font-weight: var(--weight-regular); font-size: var(--type-body-01); line-height: var(--lh-normal); }
+.type-label { font-family: var(--font-sans); font-weight: var(--weight-regular); font-size: var(--type-label-01); line-height: var(--lh-tight); color: var(--text-secondary); }
+.type-mono { font-family: var(--font-mono); font-size: var(--type-code-01); letter-spacing: 0; }

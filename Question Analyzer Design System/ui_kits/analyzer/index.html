@@ -1,0 +1,56 @@
+<!-- @startingPoint section="Analyzer" subtitle="Dashboard + Week in Review, with transcript upload" viewport="1280x800" -->
+<!-- @dsCard group="Analyzer" viewport="1280x800" name="Question Analyzer — app" subtitle="Ranked dashboard, animated Week in Review, transcript upload" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Question Analyzer</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230f62fe'/%3E%3Ctext x='16' y='23' font-family='Arial' font-size='19' font-weight='bold' fill='white' text-anchor='middle'%3E%3F%3C/text%3E%3C/svg%3E" />
+<link rel="stylesheet" href="../../styles.css" />
+<style>
+  html, body { height: 100%; }
+  /* var, not #fff: the inline style wins over styles.css, and a hardcoded
+     white here caused a white flash/overscroll in dark mode */
+  body { margin: 0; background: var(--background); }
+  input::placeholder { color: var(--text-placeholder); }
+  [data-lucide] { display: inline-flex; }
+
+  @keyframes qa-spin { to { transform: rotate(360deg); } }
+  [data-lucide="loader"] { animation: qa-spin 0.9s linear infinite; transform-origin: center; }
+
+  @keyframes qa-ping { 0% { transform: scale(1); opacity: .7; } 80%, 100% { transform: scale(2.8); opacity: 0; } }
+  .qa-pulse { transform-box: fill-box; transform-origin: center; animation: qa-ping 2.2s var(--ease-productive) infinite; }
+
+  @keyframes qa-pop { 0% { transform: scale(.4); opacity: 0; } 60% { transform: scale(1.08); } 100% { transform: scale(1); opacity: 1; } }
+  .qa-pop { animation: qa-pop 420ms var(--ease-entrance) both; }
+
+  @keyframes qa-view-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+  .qa-view { animation: qa-view-in 380ms var(--ease-entrance) both; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .qa-pulse, [data-lucide="loader"] { animation: none; }
+  }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<!-- Vendored locally: a local-only tool must not need a CDN (offline or a
+     corporate proxy used to mean a blank white page), must not phone home,
+     and production React is what a shipped app should run. -->
+<script src="../../vendor/react.production.min.js"></script>
+<script src="../../vendor/react-dom.production.min.js"></script>
+<script src="../../vendor/babel.min.js"></script>
+<script src="../../vendor/lucide.min.js"></script>
+<script src="../../_ds_bundle.js?v=2"></script>
+<script src="api.js"></script>
+<script type="text/babel" src="Icon.jsx"></script>
+<script type="text/babel" src="anim.jsx"></script>
+<script type="text/babel" src="AppHeader.jsx"></script>
+<script type="text/babel" src="RankedRow.jsx"></script>
+<script type="text/babel" src="DashboardView.jsx"></script>
+<script type="text/babel" src="WeekView.jsx"></script>
+<script type="text/babel" src="Modals.jsx"></script>
+<script type="text/babel" src="App.jsx"></script>
+</body>
+</html>

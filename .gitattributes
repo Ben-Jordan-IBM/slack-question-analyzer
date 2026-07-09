@@ -1,0 +1,13 @@
+# Line endings must survive any core.autocrlf setting: a CRLF setup.sh dies
+# with "$'\r': command not found" on macOS/Linux, and Windows batch files
+# want CRLF.
+* text=auto
+*.sh text eol=lf
+*.command text eol=lf
+*.py text eol=lf
+*.js text eol=lf
+*.jsx text eol=lf
+*.json text eol=lf
+*.md text eol=lf
+*.bat text eol=crlf
+*.ps1 text eol=crlf

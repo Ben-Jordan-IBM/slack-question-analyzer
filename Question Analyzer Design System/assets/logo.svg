@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="64" viewBox="0 0 320 64" fill="none" role="img" aria-label="Question Analyzer">
+  
+  <rect x="0" y="0" width="48" height="48" fill="#161616"></rect>
+  <rect x="10" y="12" width="28" height="6" fill="#0f62fe"></rect>
+  <rect x="10" y="22" width="20" height="6" fill="#4589ff"></rect>
+  <rect x="10" y="32" width="12" height="6" fill="#78a9ff"></rect>
+  
+  <text x="64" y="26" font-family="&#39;IBM Plex Sans&#39;, sans-serif" font-size="20" font-weight="600" fill="#161616" letter-spacing="-0.2">Question</text>
+  <text x="64" y="48" font-family="&#39;IBM Plex Sans&#39;, sans-serif" font-size="20" font-weight="300" fill="#525252" letter-spacing="-0.2">Analyzer</text>
+</svg>

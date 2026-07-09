@@ -1,0 +1,79 @@
+MFT Content from the Slack threads (synthetic test set 2)
+June 9, 2026
+
+How do I set up a retry policy for failed transfers? Basically I want a transfer that fails to automatically try again a few times before giving up.
+
+-----------------------------------------------------------
+June 9, 2026
+
+Looking to archive files after a successful transfer. Plan:
+
+* transfer completes
+* move the file to an /archive folder
+* add a timestamp to the filename
+
+Does MFT support this kind of post-transfer archiving?
+
+-----------------------------------------------------------
+June 8, 2026
+
+Can MFT send a Slack or Teams alert when a transfer fails? Or do we have to wire up our own webhook for that?
+
+-----------------------------------------------------------
+June 8, 2026
+
+What is the right way to handle files that arrive with the wrong encoding? We keep getting files in UTF-16 when we expect UTF-8 and the downstream system chokes. How can we convert or normalize the encoding during the transfer?
+
+-----------------------------------------------------------
+June 6, 2026
+
+Two unrelated questions for wM MFT (SaaS):
+1. Can we restrict which IP ranges a partner is allowed to connect from?
+2. Is there a way to set a transfer to only run during a maintenance window, e.g. 1am to 4am?
+
+-----------------------------------------------------------
+June 6, 2026
+
+Quick one - does MFT support mutual TLS for HTTPS partner endpoints, and separately, can it post a transfer-complete event to an external Kafka topic?
+
+-----------------------------------------------------------
+June 5, 2026
+
+Feature request from a customer: they would like bulk edit of multiple scheduled actions at once in the UI, instead of editing them one by one.
+
+-----------------------------------------------------------
+June 5, 2026
+
+Customer wants to bulk-deactivate a set of scheduled actions. Is there an existing API or UI option to disable many at once?
+
+-----------------------------------------------------------
+June 4, 2026
+
+Is the behaviour where a transfer silently succeeds with 0 bytes considered expected for empty source files?
+
+-----------------------------------------------------------
+June 4, 2026
+
+Is there a way to limit the total number of concurrent transfers running on a node so we don't overload it?
+
+-----------------------------------------------------------
+May 31, 2026
+
+Re: concurrency - can we cap how many transfers run at the same time per node to prevent overload?
+
+-----------------------------------------------------------
+May 30, 2026
+
+Does wM MFT support transferring files over IBM MQ as a transport, not just SFTP and FTPS?
+
+-----------------------------------------------------------
+May 29, 2026
+
+When a partner sends a malformed file, we don't want the listener to crash. How can we make the transfer reject the bad file and keep processing the rest?
+
+-----------------------------------------------------------
+May 28, 2026
+
+Customer would love it if the dashboard had a heat-map view of transfer failures by hour of day. Doesn't exist today but would help them spot patterns.
+
+-----------------------------------------------------------

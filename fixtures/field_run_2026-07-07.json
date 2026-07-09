@@ -1,0 +1,172 @@
+{
+  "type": "transcript",
+  "comment": "End-to-end fixture: the real 2026-07-07 field run (52 raw messages incl. 4 broadcast announcements, 1 resource notice, 1 empty message, 1 'text not available' stub, and several double-posts). This transcript motivated ANNOUNCEMENT immunity in v2.47.0: the webinar promo, sales-kit posts, and win wire produced phantom 'questions' (rhetorical headers, schedule lines, marketing copy inverted into asks) and their vocabulary contaminated rewrites of real questions ('What's New *' prefix leak). The must_not_match bans encode every observed phantom; message_asks pins the tricky consolidation calls; support_must_match guards every REAL question against an over-aggressive filter (the Danone bug report is emoji- and bullet-heavy, the sales-play question mentions broadcast vocabulary — both must survive). See field_run_2026-07-07_answer_key.md for the message-by-message rationale.",
+  "transcript": "field_run_2026-07-07.txt",
+  "expect": {
+    "recurring_groups": [
+      {
+        "must_match": ["sizing guidance|sizing.*calculation|calculation documents"],
+        "count": 2
+      },
+      {
+        "must_match": ["transaction", "estimat|statistic|entitlement|metering"],
+        "count": 2
+      }
+    ],
+    "must_stay_singleton": [
+      "linuxone",
+      "openshift",
+      "e2open",
+      "negative transfer speed",
+      "public sftp"
+    ],
+    "must_not_group": [
+      ["linuxone", "azure"],
+      ["linuxone", "windows server"],
+      ["sizing guidance", "estimate|statistic"]
+    ],
+    "must_not_match": [
+      "customers care",
+      "when: july|9:00 ?am",
+      "fasp",
+      "sales kit|elevator pitch|click.through|happy selling",
+      "register here|webinar|spread the word",
+      "bupa",
+      "what'?s new",
+      "gen ?2",
+      "capability and feature parity",
+      "ai.era workloads"
+    ],
+    "support_must_match": [
+      "hardening|security.*guideline",
+      "sales play",
+      "send mail|securestring|fix ?14",
+      "linuxone",
+      "openshift",
+      "negative transfer speed",
+      "administrator",
+      "multi.?factor|mfa",
+      "rfp",
+      "metering dashboard",
+      "metering agent|pre.install",
+      "container.level|sas token|azure blob",
+      "threads?|8600|scheduled actions",
+      "control file|stability",
+      "quarantine",
+      "webhook",
+      "merge|flow service",
+      "timezone|utc|timestamps",
+      "windows server 2025",
+      "sql server 2025",
+      "public sftp",
+      "e2e monitoring|monitoring.*alert",
+      "establishment",
+      "vulnerabilit|malware",
+      "custom error",
+      "box folder|rfp responses",
+      "deactivate",
+      "mft ui|cannot open|open the.*ui|ui.*version 12",
+      "nullpointerexception|ui settings"
+    ],
+    "review_must_match": [
+      "prod537147|check on the status"
+    ],
+    "routed_must_match": [
+      {
+        "match": "linuxone",
+        "bucket": "Install|Connectivity"
+      },
+      {
+        "match": "negative transfer speed",
+        "bucket": "Errors|Monitoring|Scheduling"
+      },
+      {
+        "match": "estimate their potential|transaction statistics",
+        "bucket": "Metering"
+      }
+    ],
+    "feedback_count": 2,
+    "feedback_must_match": [
+      "graphical|action log",
+      "group actions|filter"
+    ],
+    "feedback_must_not_match": [
+      "vulnerabilit|malware"
+    ],
+    "answered_count": 0,
+    "message_asks": [
+      {
+        "contains": "Please use this documentation page",
+        "asks": 0
+      },
+      {
+        "contains": "12.1 is in the spotlight",
+        "asks": 0
+      },
+      {
+        "contains": "New & Improved MFT Sales Kit",
+        "asks": 0
+      },
+      {
+        "contains": "Bupa Insurance",
+        "asks": 0
+      },
+      {
+        "contains": "Message text is not available",
+        "asks": 0
+      },
+      {
+        "contains": "sizing guidance or calculation documents",
+        "asks": 2
+      },
+      {
+        "contains": "OpenShift cluster",
+        "asks": 1
+      },
+      {
+        "contains": "APIs for creating Folders",
+        "asks": 1
+      },
+      {
+        "contains": "HashiCorp Vault",
+        "asks": 1
+      },
+      {
+        "contains": "box folder",
+        "asks": 1
+      },
+      {
+        "contains": "Metering Agent comes pre-installed",
+        "asks": 1
+      },
+      {
+        "contains": "Coming back to this use case",
+        "asks": 2
+      },
+      {
+        "contains": "customer product feedback",
+        "asks": 2
+      },
+      {
+        "contains": "TS022317449",
+        "asks": 3
+      },
+      {
+        "contains": "Windows Server 2025",
+        "asks": 2
+      },
+      {
+        "contains": "8600 scheduled actions",
+        "asks": 1
+      },
+      {
+        "contains": "check for stability before transfer",
+        "asks": 1
+      },
+      {
+        "contains": "notification via email to a designated administrator",
+        "asks": 1
+      }
+    ]
+  }
+}

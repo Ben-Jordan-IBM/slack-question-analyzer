@@ -1,0 +1,78 @@
+MFT Content from the Slack threads (synthetic test set 5 - noise)
+
+# This channel is mostly NOT questions: announcements, status updates, resolved threads,
+# social chatter, log pastes, acknowledgments. Only a few messages are real questions.
+# The test is PRECISION: the pipeline must not fabricate questions from statements.
+
+June 9, 2026
+
+Heads up team - MFT SaaS maintenance window this Saturday 2-4am UTC, expect brief downtime. Will post here when it's back up.
+
+-----------------------------------------------------------
+June 9, 2026
+
+Morning all - quick one before standup: does MFT let you set a different retry count per partner, or is it global only?
+
+-----------------------------------------------------------
+June 8, 2026
+
+Update on the Bekaert antivirus issue from last week - turned out to be a misconfigured scan engine on their side, fixed now. Thanks everyone for the help.
+
+-----------------------------------------------------------
+June 8, 2026
+
+FYI I've pushed the updated connector config to the staging tenant, will validate this afternoon.
+
+-----------------------------------------------------------
+June 6, 2026
+
+Been banging my head on this for two hours - transfers to the EU partner just silently stop after about 50 files, no error in the logs, nothing. Completely stuck.
+
+-----------------------------------------------------------
+June 6, 2026
+
+Ugh, Mondays. This whole deployment has been a nightmare from start to finish.
+
+-----------------------------------------------------------
+June 5, 2026
+
+Same here, we saw the same thing on our side.
+
+-----------------------------------------------------------
+June 5, 2026
+
+Does the cleanup scheduler support a dry-run mode, so we can see what it would delete before it actually deletes anything?
+
+-----------------------------------------------------------
+June 4, 2026
+
+For anyone interested, the MFT 10.15 release notes are here: https://docs.example.com/mft/1015-notes
+
+-----------------------------------------------------------
+June 4, 2026
+
+Saw this in the logs but it self-resolved, posting for visibility:
+2026-06-03 02:11:09 WARN [mft.transfer] retry 1 of 3 for endpoint sftp-eu-01
+2026-06-03 02:11:14 INFO [mft.transfer] transfer completed
+
+-----------------------------------------------------------
+June 3, 2026
+
+Hi team, hope everyone is well. When you get a sec - is there a way to get an email digest of all failed transfers once a day, instead of a separate alert per failure?
+
+-----------------------------------------------------------
+June 3, 2026
+
+Got it, thanks Priya - that worked perfectly.
+
+-----------------------------------------------------------
+June 2, 2026
+
+Decision from the architecture review: we are standardizing on AS2 for all new retail partners going forward.
+
+-----------------------------------------------------------
+June 2, 2026
+
+Anyone else ready for the weekend?
+
+-----------------------------------------------------------

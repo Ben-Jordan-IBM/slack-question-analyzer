@@ -1,0 +1,127 @@
+MFT Content from the Slack threads (synthetic test set 7 - volume + ranking + emerging topic)
+
+# A realistic ~3-week channel at volume. Tests: exact counts at scale, correct RANKING of
+# several recurring groups of different sizes, an EMERGING topic (AI/agent questions that
+# fit no existing bucket and should surface as uncertain/new-category), plus light checks
+# that noise-rejection and multi-part splitting still hold under load.
+
+June 11, 2026
+
+Customer's large transfers keep hitting a timeout. How do we increase the SFTP connection timeout?
+
+-----------------------------------------------------------
+June 11, 2026
+
+How do I configure FTPS with explicit TLS for a partner endpoint?
+
+-----------------------------------------------------------
+June 10, 2026
+
+How do we set up alerting so the team gets notified when a transfer fails?
+
+-----------------------------------------------------------
+June 10, 2026
+
+Can the AI Integration Agent build an entire integration flow from a plain-English prompt?
+
+-----------------------------------------------------------
+June 9, 2026
+
+What is the end-to-end process to onboard a new trading partner?
+
+-----------------------------------------------------------
+June 9, 2026
+
+Does MFT support transferring files to Azure Data Lake Storage Gen2?
+
+-----------------------------------------------------------
+June 8, 2026
+
+Re: timeouts - what setting controls how long MFT waits before an SFTP transfer times out?
+
+-----------------------------------------------------------
+June 8, 2026
+
+Two things for wM MFT (SaaS): 1. can we set a max retry count per transfer? 2. can we tag transfers with a custom label for reporting?
+
+-----------------------------------------------------------
+June 7, 2026
+
+How do I purge transfer records older than 90 days from the database?
+
+-----------------------------------------------------------
+June 7, 2026
+
+Feature request: the customer would love a visual drag-and-drop flow builder in the MFT UI.
+
+-----------------------------------------------------------
+June 6, 2026
+
+Re: notifications - what is the way to get an alert on transfer failures in MFT?
+
+-----------------------------------------------------------
+June 6, 2026
+
+How does the agentic AI decide which transformation steps to add to a flow?
+
+-----------------------------------------------------------
+June 5, 2026
+
+Can I set Unix file permissions (chmod) on files after they are delivered?
+
+-----------------------------------------------------------
+June 5, 2026
+
+Big files are timing out mid-transfer. Is there a way to extend the SFTP timeout window?
+
+-----------------------------------------------------------
+June 4, 2026
+
+How do I exclude certain file extensions from being picked up by a Find task?
+
+-----------------------------------------------------------
+June 4, 2026
+
+Reminder: MFT office hours have moved to Thursdays at 3pm UTC going forward.
+
+-----------------------------------------------------------
+June 3, 2026
+
+How do we set up a brand-new partner connection from scratch?
+
+-----------------------------------------------------------
+June 3, 2026
+
+Can the AI Observability Agent auto-remediate a failed transfer without a human stepping in?
+
+-----------------------------------------------------------
+June 2, 2026
+
+Customer wants to be notified when transfers fail. How do we configure failure alerts?
+
+-----------------------------------------------------------
+June 2, 2026
+
+What is the default retention period for transfer audit logs?
+
+-----------------------------------------------------------
+June 1, 2026
+
+How can we stop SFTP transfers from timing out on slow partner links?
+
+-----------------------------------------------------------
+June 1, 2026
+
+Re: cleanup - what is the way to delete old transfer history on a schedule?
+
+-----------------------------------------------------------
+May 31, 2026
+
+Can a file transfer be triggered by an incoming webhook call?
+
+-----------------------------------------------------------
+May 30, 2026
+
+Customer would like scheduled transfers to support full cron expressions, not just fixed intervals - doesn't look possible today.
+
+-----------------------------------------------------------

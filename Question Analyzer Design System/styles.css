@@ -1,0 +1,87 @@
+/* ============================================================
+   Question Analyzer Design System — global entry point
+   IBM Carbon foundations adapted for the Slack Question Analyzer.
+   Consumers link THIS file only.
+   ============================================================ */
+
+@import url('tokens/fonts.css');
+@import url('tokens/colors.css');
+@import url('tokens/typography.css');
+@import url('tokens/spacing.css');
+@import url('tokens/elevation.css');
+
+/* ---- Light base reset shared by all surfaces ---- */
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: var(--type-body-01);
+  line-height: var(--lh-normal);
+  color: var(--text-primary);
+  background: var(--background);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* ---- Status-chip tokens: pastel tint + readable ink, per status. Defined
+   as semantic pairs so the dark block below can re-skin every chip and
+   banner (answered/unanswered/needs-review/warning) in one place. ---- */
+:root {
+  --tag-ok-bg:    #defbe6;
+  --tag-ok-fg:    #198038;
+  --tag-err-bg:   #fff1f1;
+  --tag-err-fg:   #a2191f;
+  --tag-warn-bg:  #fff8e1;
+  --tag-warn-fg:  #8e6a00;
+  --banner-warn-bg:     #fcf4d6;
+  --banner-warn-border: #f1c21b;
+  --banner-warn-fg:     #8a6116;
+  --banner-warn-strong: #5c4a0a;
+  --chip-active-bg:     #edf5ff;
+}
+
+/* ---- Dark theme: semantic-token overrides only. Components reference the
+   semantic aliases (never raw grays), so one block re-skins everything.
+   Toggled by data-theme="dark" on <html>; default stays light. ---- */
+:root[data-theme="dark"] {
+  --background:        #161616;
+  --background-inverse: var(--gray-10);
+  --layer-01:          #1f1f1f;
+  --layer-02:          #262626;
+  --layer-hover:       #333333;
+  --layer-active:      #4c4c4c;
+  --field:             #2a2a2a;
+  --field-hover:       #333333;
+
+  --border-subtle:     #393939;
+  --border-strong:     #6f6f6f;
+  --border-inverse:    var(--gray-10);
+
+  --text-primary:      #f4f4f4;
+  --text-secondary:    #c6c6c6;
+  --text-helper:       #a8a8a8;
+  --text-placeholder:  #6f6f6f;
+  --text-disabled:     #525252;
+
+  --link:              #78a9ff;
+  --link-hover:        #a6c8ff;
+
+  --tag-ok-bg:    #0e3a1e;
+  --tag-ok-fg:    #6fdc8c;
+  --tag-err-bg:   #47161a;
+  --tag-err-fg:   #ff8389;
+  --tag-warn-bg:  #3d3222;
+  --tag-warn-fg:  #f1c21b;
+  --banner-warn-bg:     #302a17;
+  --banner-warn-border: #8a6116;
+  --banner-warn-fg:     #f1c21b;
+  --banner-warn-strong: #f4e8b8;
+  --chip-active-bg:     #1c3358;
+
+  /* Accent steps too dim against dark surfaces move to the lighter Carbon
+     step (chart accents, the FAQ-published marker, history icon hover) */
+  --teal-60:            #08bdba;
+}

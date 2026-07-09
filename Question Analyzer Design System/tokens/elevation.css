@@ -1,0 +1,26 @@
+/* ============================================================
+   ELEVATION & MOTION — Carbon shadows, focus, easing
+   ============================================================ */
+
+:root {
+  /* Shadows — Carbon uses restrained, cool-gray elevation */
+  --shadow-sm: 0 1px 2px rgba(22, 22, 22, 0.08);
+  --shadow-md: 0 2px 6px rgba(22, 22, 22, 0.10);
+  --shadow-lg: 0 6px 16px rgba(22, 22, 22, 0.14);
+  --shadow-overlay: 0 12px 28px rgba(22, 22, 22, 0.22);
+
+  /* Focus ring — Carbon's signature 2px inset + outline */
+  --focus-ring: 0 0 0 2px var(--focus);
+  --focus-ring-inset: inset 0 0 0 1px var(--focus), inset 0 0 0 2px var(--focus-inset);
+
+  /* Motion — Carbon productive/expressive easing */
+  --ease-productive: cubic-bezier(0.2, 0, 0.38, 0.9); /* @kind other */
+  --ease-entrance: cubic-bezier(0, 0, 0.38, 0.9);      /* @kind other */
+  --ease-exit: cubic-bezier(0.2, 0, 1, 0.9);           /* @kind other */
+  --ease-standard: cubic-bezier(0.4, 0.14, 0.3, 1);    /* @kind other */
+
+  --duration-fast: 70ms;       /* @kind other */
+  --duration-base: 110ms;      /* @kind other */
+  --duration-moderate: 150ms;  /* @kind other */
+  --duration-slow: 240ms;      /* @kind other */
+}

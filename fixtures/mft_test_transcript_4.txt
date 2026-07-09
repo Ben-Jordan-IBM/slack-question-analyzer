@@ -1,0 +1,54 @@
+MFT Content from the Slack threads (synthetic test set 4 - threads)
+
+# Convention: each block is one thread. The first paragraph is the customer/asker message.
+# Lines beginning "> Reply (Name):" are responses in the thread.
+# The parser must (a) attach replies to their parent for the Answered metric and
+# (b) NOT extract reply text as new questions.
+
+June 9, 2026
+
+How do I increase the SFTP connection timeout? The customer's large transfers keep timing out before they finish.
+> Reply (Priya): Set mft.sftp.connectionTimeout in the server config to 300000 (5 minutes) and restart the Integration Server. That resolved it for another customer with big payloads.
+
+-----------------------------------------------------------
+June 8, 2026
+
+Is there a way to throttle bandwidth per partner in MFT so one partner doesn't saturate the link?
+> Reply (Dan): Good question - let me check with the product team and get back to you.
+
+-----------------------------------------------------------
+June 7, 2026
+
+Does MFT support transferring files to SharePoint Online as a destination?
+
+-----------------------------------------------------------
+June 5, 2026
+
+Can MFT validate file integrity with SHA-256 checksums on receipt?
+> Reply (Mei): Yes - enable checksum validation in the virtual folder settings, SHA-256 is supported. See the docs here: https://docs.example.com/mft/checksums
+
+-----------------------------------------------------------
+June 4, 2026
+
+Why are transfers failing intermittently to partner X? It works most of the time but drops a few transfers a day.
+> Reply (Sam): Are they failing around the same time of day? Could line up with the partner's maintenance window.
+
+-----------------------------------------------------------
+June 3, 2026
+
+Two things for the wM MFT (SaaS) setup:
+1. Can we set per-folder retention policies?
+2. Can we auto-purge files older than N days?
+> Reply (Alex): For #2, yes - use the cleanup scheduler with a max-age set to N days. Not sure on #1, I'll check and follow up.
+
+-----------------------------------------------------------
+June 2, 2026
+
+Customer on 10.15.2 wants to know if MFT can handle files approx. 5GB in size, i.e. very large payloads, e.g. nightly DB dumps. Is there a max single-transfer size?
+
+-----------------------------------------------------------
+June 1, 2026
+
+After upgrading to 10.15 CF19, transfers to https://partner.example.com/inbound started returning a 403. Any idea what changed?
+
+-----------------------------------------------------------

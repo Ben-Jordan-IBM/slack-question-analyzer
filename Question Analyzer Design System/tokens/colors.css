@@ -1,0 +1,106 @@
+/* ============================================================
+   COLORS — IBM Carbon palette + product semantic aliases
+   White theme. Carbon is open source (Apache 2.0 / IBM Design).
+   ============================================================ */
+
+:root {
+  /* ---- Core palette: Blue (primary / interactive) ---- */
+  --blue-10: #edf5ff;
+  --blue-20: #d0e2ff;
+  --blue-30: #a6c8ff;
+  --blue-40: #78a9ff;
+  --blue-50: #4589ff;
+  --blue-60: #0f62fe;   /* IBM primary */
+  --blue-70: #0043ce;
+  --blue-80: #002d9c;
+  --blue-90: #001d6c;
+  --blue-100: #001141;
+
+  /* ---- Gray (neutrals / UI) ---- */
+  --gray-10: #f4f4f4;
+  --gray-20: #e0e0e0;
+  --gray-30: #c6c6c6;
+  --gray-40: #a8a8a8;
+  --gray-50: #8d8d8d;
+  --gray-60: #6f6f6f;
+  --gray-70: #525252;
+  --gray-80: #393939;
+  --gray-90: #262626;
+  --gray-100: #161616;
+  --white: #ffffff;
+
+  /* ---- Support / status ---- */
+  --red-50: #fa4d56;
+  --red-60: #da1e28;    /* error */
+  --green-50: #42be65;
+  --green-60: #24a148;  /* success */
+  --yellow-30: #f1c21b; /* warning */
+  --orange-40: #ff832b;
+
+  /* ---- Accents (data viz / ranking) ---- */
+  --purple-40: #be95ff;
+  --purple-60: #8a3ffc;
+  --teal-50: #009d9a;
+  --teal-60: #007d79;
+  --cyan-50: #1192e8;
+  --magenta-60: #d02670;
+
+  /* ============================================================
+     SEMANTIC ALIASES — reference these in components
+     ============================================================ */
+
+  /* Surfaces (Carbon layering model) */
+  --background:        var(--white);
+  --background-inverse: var(--gray-80);
+  --layer-01:          var(--gray-10);   /* page panels on white */
+  --layer-02:          var(--white);     /* cards on gray-10 */
+  --layer-hover:       #e8e8e8;
+  --layer-active:      var(--gray-30);
+  --field:             var(--gray-10);   /* input fills */
+  --field-hover:       #e8e8e8;
+
+  /* Borders */
+  --border-subtle:     var(--gray-20);
+  --border-strong:     var(--gray-50);
+  --border-inverse:    var(--gray-100);
+  --border-interactive: var(--blue-60);
+
+  /* Text */
+  --text-primary:      var(--gray-100);
+  --text-secondary:    var(--gray-70);
+  --text-helper:       var(--gray-60);
+  --text-placeholder:  var(--gray-40);
+  --text-on-color:     var(--white);
+  --text-disabled:     var(--gray-30);
+  --text-inverse:      var(--white);
+
+  /* Interactive / brand */
+  --interactive:       var(--blue-60);
+  --link:              var(--blue-60);
+  --link-hover:        var(--blue-70);
+  --focus:             var(--blue-60);
+  --focus-inset:       var(--white);
+
+  /* Buttons */
+  --button-primary:        var(--blue-60);
+  --button-primary-hover:  var(--blue-70);
+  --button-primary-active: var(--blue-80);
+  --button-secondary:        var(--gray-80);
+  --button-secondary-hover:  var(--gray-90);
+  --button-secondary-active: var(--gray-100);
+  --button-danger:        var(--red-60);
+  --button-danger-hover:  #ba1b23;
+
+  /* Status */
+  --support-error:   var(--red-60);
+  --support-success: var(--green-60);
+  --support-warning: var(--yellow-30);
+  --support-info:    var(--blue-60);
+
+  /* Ranking accent ramp (heat for question frequency) */
+  --rank-hot:   var(--blue-60);
+  --rank-warm:  var(--blue-50);
+  --rank-mid:   var(--blue-40);
+  --rank-cool:  var(--blue-30);
+  --rank-faint: var(--blue-20);
+}

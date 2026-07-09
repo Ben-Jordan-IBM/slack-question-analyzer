@@ -1,0 +1,43 @@
+{
+  "type": "transcript",
+  "comment": "End-to-end fixture: synthetic MFT transcript 5 (14 messages, ONLY 4 asks). The precision fixture — a realistic noisy channel where most messages are announcements, status updates, resolved threads, venting, social chatter, log pastes and acknowledgments. The headline assertion is total = 4: anything higher means the extractor is FABRICATING questions from statements. Key contrast pair: the EU-partner message (concrete resolvable symptom, implicit ask -> extract) vs the Mondays-nightmare message (pure mood, no problem to solve -> zero). Also directly stress-tests the zero-ask quality-model recheck added in v2.27: ten wordy no-question messages each get a second look that must still return nothing. See mft_test_answer_key_5.md.",
+  "transcript": "mft_test_transcript_5.txt",
+  "expect": {
+    "total_asks": 4,
+    "recurring_topics": 0,
+    "feedback_count": 0,
+    "message_asks": [
+      {"contains": "maintenance window", "asks": 0},
+      {"contains": "retry count per partner", "asks": 1},
+      {"contains": "Bekaert antivirus issue", "asks": 0},
+      {"contains": "staging tenant", "asks": 0},
+      {"contains": "silently stop after about 50 files", "asks": 1},
+      {"contains": "deployment has been a nightmare", "asks": 0},
+      {"contains": "Same here", "asks": 0},
+      {"contains": "dry-run mode", "asks": 1},
+      {"contains": "release notes are here", "asks": 0},
+      {"contains": "self-resolved", "asks": 0},
+      {"contains": "email digest", "asks": 1},
+      {"contains": "that worked perfectly", "asks": 0},
+      {"contains": "standardizing on AS2", "asks": 0},
+      {"contains": "ready for the weekend", "asks": 0}
+    ],
+    "support_must_match": [
+      "retry count|retry.*per partner|per.partner.*retry",
+      "50 files|silently stop",
+      "dry-?run",
+      "digest"
+    ],
+    "must_not_match": [
+      "maintenance window",
+      "bekaert",
+      "staging",
+      "nightmare|monday",
+      "same here",
+      "release notes",
+      "standardiz|\\bas2\\b",
+      "weekend",
+      "retry 1 of 3|posting for visibility|self.resolved"
+    ]
+  }
+}

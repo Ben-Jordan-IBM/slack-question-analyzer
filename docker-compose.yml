@@ -1,0 +1,57 @@
+# Full stack: the analyzer (API + dashboard) and a local Ollama.
+# Models are pulled automatically on first start.
+#
+#   docker compose up -d
+#
+# Dashboard: http://localhost:5000
+
+services:
+  analyzer:
+    build: .
+    ports:
+      - "5000:5000"
+    environment:
+      OLLAMA_URL: http://ollama:11434
+      TOPIC_BANK_PATH: /app/bankdata/topic_bank.json
+      # model-init pulls the compact chat model; say so explicitly instead of
+      # letting the app prefer the 8B and fall back with a warning. For better
+      # topic names on a machine with >=12GB RAM, switch both this and the
+      # model-init pull below to llama3.1:8b (~5GB download).
+      OLLAMA_GENERATION_MODEL: llama3.2
+    volumes:
+      - analyses:/app/analyses
+      - embedding-cache:/app/.embedding_cache
+      - llm-cache:/app/.llm_cache
+      - jobs:/app/jobs
+      - topic-bank:/app/bankdata
+    depends_on:
+      - ollama
+    restart: unless-stopped
+
+  ollama:
+    image: ollama/ollama
+    volumes:
+      - ollama-models:/root/.ollama
+    restart: unless-stopped
+
+  # One-shot: downloads the models into the shared volume on first start.
+  # Waits for Ollama to actually answer instead of hoping a fixed sleep is
+  # enough, and retries on failure so a slow first boot can't strand the
+  # stack with no models.
+  model-init:
+    image: ollama/ollama
+    depends_on:
+      - ollama
+    environment:
+      OLLAMA_HOST: http://ollama:11434
+    entrypoint: ["/bin/sh", "-c",
+                 "for i in $$(seq 1 30); do ollama list >/dev/null 2>&1 && break; sleep 2; done && ollama pull nomic-embed-text && ollama pull llama3.2"]
+    restart: on-failure
+
+volumes:
+  analyses:
+  embedding-cache:
+  llm-cache:
+  jobs:
+  topic-bank:
+  ollama-models:

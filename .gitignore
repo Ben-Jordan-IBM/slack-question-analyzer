@@ -1,0 +1,29 @@
+node_modules/
+dist/
+.env
+*.log
+.DS_Store
+__pycache__/
+*.pyc
+.embedding_cache/
+.llm_cache/
+.pytest_cache/
+analyses/
+jobs/
+topic_bank.json
+
+*.egg-info/
+
+# Eval baselines and analysis outputs users generate in the repo root
+round*.json
+*_analysis.json
+results.json
+results.csv
+report.md
+
+# Tooling caches / local agent config (any hidden tool dir)
+.ruff_cache/
+.*/
+!.github/
+.venv/
+node_modules/

@@ -1,0 +1,493 @@
+July 7, 2026
+
+ Please use this documentation page Capability and feature parity across deployments - IBM Documentation and this Box note ibm.box.com/s/9nkvgf43csw3yyxmn1c1hictijodrj96 to be aware of high-level differences in product and feature availability between IWHI Gen1 and Gen2. For example, MFT is not yet available on Azure for Gen2 due to technical issues.
+
+-----------------------------------------------------------
+July 7, 2026
+
+Hi all, we have a partner who would like to run IWHI (integration,APIM,B2B and MFT) in an OpenShift cluster. Where can I find out which operators that are available?
+
+-----------------------------------------------------------
+July 6, 2026
+
+Message text is not available. Link to message
+
+-----------------------------------------------------------
+July 6, 2026
+
+Hello , customer using MAT_11.1_Server_Fix_5  noticed the following in the ActiveTransfer.log:
+
+2026-07-06 06:47:18,020 INFO  [com.softwareag.mft.event                ][1223] - Write transfer speed:-756,159 KB/s, dest:file://opt/webmethodsdata/...
+2026-07-06 06:47:18,020 INFO  [com.softwareag.mft.event                ][1222] - Read transfer speed:-5,041 KB/s, source:SMB://...
+
+Such a negative transfer speed is always written if the file size is greater than 2 GB.   the issue is probably very old as it is visible in 10.11, too. So it is not related to the fix level.
+
+But the customer uses this information for analysis which is not possible if the files are bigger than 2 GB. Besides the logs, the DB is affected, too: In the table MFTTransactions the "TransferSpeed" is 2202009 while normal transfers has values less than 70000.
+
+-----------------------------------------------------------
+July 2, 2026
+
+Anyone can share a template answer to RFP for MFT using wM MFT (on prem) ?
+
+-----------------------------------------------------------
+July 1, 2026
+
+:alert-blue::alert-blue: Webinar Alert : IBM webMethods 12.1 is in the spotlight! :alert-blue::alert-blue: 
+This session will spotlight how webMethods 12.1 helps teams modernize complex integration estates, scale across multiple integration patterns, and prepare business-critical integrations for AI-era workloads.
+:but-why: Why should customers care?
+
+:small_blue_diamond: Modern runtime readiness
+:small_blue_diamond: Stronger security and compliance
+:small_blue_diamond: Faster integration delivery
+:small_blue_diamond: Better support for complex hybrid estates
+:small_blue_diamond: A stronger foundation for AI-era workloads
+:small_blue_diamond:Sneak peek into Flow Pilot
+
+:arrow_right3:When: July 8, 2026 | 9:00 AM EDT:arrow_left3:
+:arrow-right1:Register here -> IBM Webcasts
+Speakers: @Sonica Vij @Ravi Syamala 
+
+This is especially relevant for existing webMethods customers, accounts planning modernization or upgrade cycles, and new prospects looking for modern integration capabilities across apps, APIs, B2B, MFT, events and hybrid environments.
+Please help spread the word with your customers, prospects and account teams. Let’s get the right audience in the room and make this one count! :rocket:and make this one count.
+
+-----------------------------------------------------------
+July 1, 2026
+
+hi team, we have question from customer:
+
+Pls dig into internal channel if there is any paper on security/hardening guidelines for wM products like IS, UM and MFT?
+I lookup on the ibm documentation site but very lightly treated and action specific rather than a “tobe” picture / what good looks like.
+
+Thanks
+
+-----------------------------------------------------------
+June 30, 2026
+
+Hi team - do we have any sizing guidance or calculation documents for webMethods MFT? Specifically, I am looking for CP4I webMethods add-on sizing based on VPCs, not RU-based sizing.
+
+-----------------------------------------------------------
+June 30, 2026
+
+Do we have any sizing guidance or calculation documents for webMethods MFT? Specifically, I am looking for CP4I webMethods add-on sizing based on VPCs, not RU-based sizing.
+
+-----------------------------------------------------------
+June 30, 2026
+
+Hi Team,
+Does IWHI MFT have APIs for creating Folders, SFTP Connections, Actions etc? Any IBM KC link would help?
+
+-----------------------------------------------------------
+June 30, 2026
+
+,
+
+:rocket: New & Improved MFT Sales Kit is Here!
+We’re excited to share the latest, refined version of the Managed File Transfer (MFT) Sales Kit - designed to help you engage faster, position the MFT story clearly and close with confidence. This upgrade brings sharper messaging, streamlined and cleaner artifacts, and tighter storytelling to support every stage of your customer discussions.
+
+:sparkles: What’s New
+
+* :bullettrain_side: MFT FASP spotlight - Enhanced positioning and value articulation for FASP with MFT FASP one pager, making it easier to highlight speed, reliability, and differentiation in your pitches.
+* :movie_camera: Demo-ready assets - Quick access to a compelling Elevator Pitch, seller-friendly Script, and an engaging Click-through Video to bring your narrative to life.
+* :open_file_folder: Simplified structure - A simplified layout and updated content flow so you can find the right asset in just a few clicks.
+
+:point_right: Explore the new kit here: MFT Sales kit
+
+This is just the start - more updates and assets will be rolling out over the coming days. Leverage these updates to elevate your conversations and make every customer interaction count. Happy selling! :briefcase::fire:
+
+Got questions? :eyes: Send them our way! :rocket:
+
+cc: @jcalandra, @arijit.dutta1, @Kanwaldeep Saluja, @Jigdesh
+
+-----------------------------------------------------------
+June 30, 2026
+
+,
+
+:rocket: New & Improved MFT Sales Kit is Here!
+We’re excited to share the latest, refined version of the Managed File Transfer (MFT) Sales Kit - designed to help you engage faster, position the MFT story clearly and close with confidence. This upgrade brings sharper messaging, streamlined and cleaner artifacts, and tighter storytelling to support every stage of your customer discussions.
+
+:sparkles: What’s New
+
+* :bullettrain_side: MFT FASP spotlight - Enhanced positioning and value articulation for FASP with MFT FASP one pager, making it easier to highlight speed, reliability, and differentiation in your pitches.
+* :movie_camera: Demo-ready assets - Quick access to a compelling Elevator Pitch, seller-friendly Script, and an engaging Click-through Video to bring your narrative to life.
+* :open_file_folder: Simplified structure - A simplified layout and updated content flow so you can find the right asset in just a few clicks.
+
+:point_right: Explore the new kit here: MFT Sales kit
+
+This is just the start - more updates and assets will be rolling out over the coming days. Leverage these updates to elevate your conversations and make every customer interaction count. Happy selling! :briefcase::fire:
+
+Got questions? :eyes: Send them our way! :rocket:
+
+cc: @jcalandra, @arijit.dutta1, @Kanwaldeep Saluja, @Jigdesh
+
+-----------------------------------------------------------
+June 29, 2026
+
+Hello all  .
+
+Do we have any guide on how to set up an administrator user that is not called Administrator?
+
+I have tried in various ways, with local or CDS users, but even if I am putting the user in all the groups and roles, local, CDS and MFT, it still can't access the MFT admin UI...
+
+
+ jvm 1    | ISSERVER|| 2026-06-29 15:21:23 GMT [ISS.0053.0002C] (tid=303) Access denied for user mftadmin on port 5555 -> 'invoke/wm.mft.ui.route/getSession' from ...
+
+
+-----------------------------------------------------------
+June 29, 2026
+
+External Vault Integration Approaches for IWHI MFT & ActiveTransfer
+Hi #wm-mft-swat,
+
+Background: I have a customer who wants to integrate their MFT SaaS and self-hosted AT (OpenShift) platforms with their HashiCorp Vault, which both our products don't natively support (yet). I've had discussions with Rob Tiberio, Arijit Dutta and team on the roadmaps for both, but the customer still needs an interim solution.
+
+Integration Layer: They also use ACE on SaaS and OpenShift as their integration layer, so no wM Integration in SaaS/OpenShift.
+
+Question: I welcome your directions/hints on alternative/interim solutions, please.
+Can HashiCorp Agents be leveraged here? Any other ideas?
+
+-----------------------------------------------------------
+June 25, 2026
+
+Hi Experts,
+
+I have created a jira issue,https://ibm-middleware.atlassian.net/browse/MAT-26382 , Customer not able to see transaction on Metering Dashboard for MFT.
+Please look into this jira isssue.
+Thanks
+
+-----------------------------------------------------------
+June 23, 2026
+
+Can someone point me to license information for IBM webMethods BPM Optimize for Process which is Establishment based license (not VPC).
+
+I have found this license information which only specifies VPC based but no establishment: https://www.ibm.com/support/customer/csol/terms/?id=L-PVGT-WDLJ28&lc=en
+
+Below Screenshot is from internal recording which mentions Establishment license for BM webMethods BPM Optimize for Process: https://ibm.seismic.com/Link/Content/DCpjMmfVPMGWHGWQdcMfT33W2pbV
+
+-----------------------------------------------------------
+June 19, 2026
+
+Can someone please check on this
+https://prod537147.a-vir-s100.mft.ipaas.automation.ibm.com/
+
+-----------------------------------------------------------
+June 19, 2026
+
+Hello team, do MFT webPortal can configure as multi factor authnetication for external business partner ?
+Right customer using legacy other prodcut where it had only user and password they want to have more safer with Multi FActor Authen for external 3rd party to logged in when upload file ?
+If we support may I askign for document or example screenshot ?
+
+-----------------------------------------------------------
+June 19, 2026
+
+Hello team, do MFT webPortal can configure as multi factor authnetication for external business partner ?
+Right customer using legacy other prodcut where it had only user and password they want to have more safer with Multi FActor Authen for external 3rd party to logged in when upload file ?
+If we support may I askign for document or example screenshot ?
+
+-----------------------------------------------------------
+June 18, 2026
+
+Hi team, I got case TS022423647, where the customer is asking the following for the 10.15 version:
+
+We have a requirement where we want all the data/files transferred via Active Transfer Server be scanned for vulnerabilities or malware.
+
+Is there any such functionality available with MFT / ATS application if yes then please let us know the process to implement the same.
+
+I review the documentation for 10.15 and in neither the Features or Capabilities is mention something like this.
+I also check for what was introduce for versions 11.1 and 12.1, but did not found anything similar.
+
+-----------------------------------------------------------
+June 17, 2026
+
+Team, my client is a B2B Integration SaaS customer and we are in the final conversations to sell IWHI (Hybrid Control Plane and MFT, initially). They are using also E2Open for medium size suppliers to update delivery dates, supply information to an SAP backend. Wondering if a combination of Transaction Manager + wM integration could replace E2Open?
+
+-----------------------------------------------------------
+June 16, 2026
+
+Hi Experts,
+
+MFT 10.15
+We have configured the timezone settings in ActiveTransfer as per the documentation (i.e., [GMT+01:00] Europe/Paris), and the UI correctly reflects timestamps in local time.
+However, our concern is related to how timestamps are stored in the MFT database. Specifically, fields such as MFTActivityLog.EntryTimestamp appear to be persisted in UTC, while the UI applies a local timezone conversion during display.
+Since we rely on these database records for external monitoring and reporting purposes, this behavior creates an additional layer of complexity when querying and correlating data across systems that operate in local time.
+
+We would like to understand the following:
+
+1. Is the storage of timestamps in UTC the intended and fixed design for ActiveTransfer?
+2. Is there any supported configuration or approach that allows timestamps to be stored directly in local time (Europe/Paris)instead of UTC?
+3. If not, what would be the recommended best practice for querying the MFT database so that timestamps consistently align with the configured local timezone (e.g., database-side conversion, views, or API usage)?
+
+Our goal is to ensure that timestamps used in downstream monitoring and reporting systems are aligned with our local timezone without requiring repeated manual conversions.
+Thank you in advance for your guidance.
+
+-----------------------------------------------------------
+June 16, 2026
+
+Hi Team, I have a customer who is planning to install Wm Active Transfer Server. He wants to verify couple of points below.
+
+1. Windows Server 2025: Is v12 certified for installation on Windows Server 2025 VMs? - My understanding is yes, we do <https://www.ibm.com/software/reports/compatibility/clarity-reports/report/html/sof[…]lues&amp;mandatoryCapIds=spcrAllValues&amp;optionalCapIds=spcrAllValues>
+2. Azure SQL (2025 Engine): Does the product support executing the WMMFT core schema against Azure SQL Database instances using SQL Server 2025 compatibility? I need guidance on this one.
+
+Thanks in advance!
+
+-----------------------------------------------------------
+June 12, 2026
+
+Hi @Kasi: The deployment documentation will be available in the next IWHI release for MFT. Thanks.
+
+-----------------------------------------------------------
+June 11, 2026
+
+Hi Team, is MFT (self-managed software) supported on IBM LinuxONE?
+
+-----------------------------------------------------------
+June 11, 2026
+
+Hello team! I am working on a custom demo for a customer in Peru. We are working with the MFT/IWHI module and we need to use SFTP servers. May you know if we have an available public SFTP server to use as a demo env?
+
+-----------------------------------------------------------
+June 11, 2026
+
+Hello, do you have any (ideally large) webMethods MFT SaaS customers (do not need to be official reference customer), but who can be dropped in a customer conversation?
+
+-----------------------------------------------------------
+June 11, 2026
+
+Hi Team,
+Could anyone please confirm whether a webhook can be triggered from the MFT system as part of a file transfer workflow? If anyone has experience or information regarding this capability, please share the details.
+Thank you.
+
+-----------------------------------------------------------
+June 11, 2026
+
+hello ! i apologies if I may not be up to date - do we very recently release a MFT sales play? could I seek for help if I can be pointed to the latest materials for me to get up to speed? Many thanks !
+
+-----------------------------------------------------------
+June 10, 2026
+
+Hi team :wave:
+Looking for some guidance on a potential MFT defect:
+Case: TS022317449 (Danone)
+Issue: MFT "Send Mail" action failing with:
+WmSecureString.toString() → secureString is null
+Context:
+
+* MAT / MFT 10.15 Fix12 (multi-instance setup)
+* SMTP test from IS works :white_check_mark:
+* MFT Send Mail fails :x:
+* Using Basic Auth with Exchange
+* Behavior resembles MAT-23173, though that one evolved into OAuth-specific
+* Prior fix path appears in Fix13 / Fix14
+
+Ask:
+
+* Can you confirm if this is the same underlying defect affecting Basic Auth flows?
+* Would upgrading to Fix14 fully address this scenario, or is further validation needed?
+* Any workaround if upgrade isn’t immediately possible?
+
+I’m planning next steps with the client and want to confirm before pushing for upgrade or raising a formal Jira.
+Thanks in advance :pray:
+
+-----------------------------------------------------------
+June 10, 2026
+
+What we found that The property mft.server.admin.access.disabled=true
+
+ was not there by deafult in properties.cnf and customer could not login, when he added this property and changed it to false , the problem resolved,
+
+-----------------------------------------------------------
+June 10, 2026
+
+Hi #wm-mft-swat I had an issue now when customer installed IS with MFT gateway and Server in same server and trying to access Gateway server.  The error was :
+Access denied
+Unable to access IBM webMethods Managed File Transfer.
+Contact your Administrator and try again
+
+-----------------------------------------------------------
+June 9, 2026
+
+Hi Team, Can I check if the WebMethods Metering Agent comes pre-installed with WebMethods Capabilities Container images? for ex. WM MFT. so customer just need to configure to point to location of on-prem metering server?
+
+-----------------------------------------------------------
+June 9, 2026
+
+Anyone here have some good examples on using the IWHI e2e monitoring for monitoring and alerting.
+I see the docs for setting up alerts and they involve kpis like error rates, transaction/response times etc.
+What if a client just wants to have a straight up monitor for one application and just needs to know when an error occurs once and needs to be alerted on it.  Does this mean he has to setup one  group each to monitor b2b, IS, MFT independently ?
+
+Or maybe the mindset for monitoring / alerting needs to be changed for integration products?
+How are real clients out there using monitoring/alerting from IWHI?
+thank you
+
+-----------------------------------------------------------
+June 5, 2026
+
+Re: wM MFT (SaaS), what would be the best way to merge content of two (or multiple) files
+
+* Find file001.txt in folder
+* Find file002.txt in folder
+* Invoke Flow Service to merge the files?
+
+
+-----------------------------------------------------------
+June 5, 2026
+
+Re: wM MFT (SaaS), customer product feedback. They would like to
+
+
+1. See a graphical representation of the Action log, that should status of each task, complete, in progress, not stated.
+2. Is there a way to group Actions, and allow users to filter Actions by group name?
+
+
+-----------------------------------------------------------
+June 5, 2026
+
+Hi All -- one of our MFT customers is concerned about thread use.  In their current implementation - they will create a little more 8600 scheduled actions.  Each scheduled actions runs "on average" about 5 minutes apart.  They are running a 2-node cluster.  Each IS has a 1000 threads allocated (With the Scheduler Thread throttle set to 75%).  The servers are Windows Servers, each has: 16 GB of RAM and 4 Cores.  They are on 10.15 coreFix19.
+
+The concern/reality is running out of threads.  Is there any way around this? Besides:
+
+* Scale Vertically:  Increase the number of cores -- allowing to increase the number of threads.
+* Scale Horizontally:  Spread the processes to more IS'es.
+
+Anyone have any thoughts?
+
+-----------------------------------------------------------
+June 5, 2026
+
+Re: wM MFT (SaaS), is there an REST API that can deactivate a list of Scheduled Actions and Post Processing Actions?
+
+-----------------------------------------------------------
+June 5, 2026
+
+Hi team, I have a customer who's configuring an Azure Blob Container against a Virtual Folder in Gen-1 SaaS MFT. I have verified that the SAS token is valid, the Azure Container exists, correct IPs allowed, protocols allowed, permissions allowed (CRUD), etc.
+
+There's no issue when they use an Storage Account-level token, but when they use a Container-level token they get an authorization failure. Do we support Container-level tokens? Here's the error and screenshot for reference.
+
+Connection failed Azure Message: This request is not authorized to perform this operation. RequestId:54fe1bd0-a01e-005e-42e9-f4eb26000000 Time:2026-06-05T12:48:59.3553489Z
+
+-----------------------------------------------------------
+June 5, 2026
+
+Hi #wm-mft-swat  Customer on tenant https://fx.ei.bekaert.com/WmMFT/  facing issue   where a Copy Task to Target System is failing due to an antivirus scanning error.
+
+Error:
+Error executing Copy to Target system : Exception while scanning for virus
+
+Timestamp: 05062026105848  The failure occurs during the antivirus scanning phase, not during connectivity or transfer  Please advise
+
+-----------------------------------------------------------
+June 5, 2026
+
+Question on wM MFT (SaaS) - The use of a control file to trigger a file transfer
+I know have a feature in the Find task that check for stability before transfer, but most customer uses a control file to indicate the data file is ready for transfer. For example, a file001.dat is uploading, and on upload complete, a file001.ctrl is created.
+
+Can we configured the following tasks to do this?
+
+* Find Task, on finding a file with {name}.ctrl
+* Move  the file {name}.dat to the dest folder
+
+
+-----------------------------------------------------------
+June 5, 2026
+
+Question on wM MFT (SaaS) - Anti virus
+When Virus is detected, how can we configure a notification via email to a designated administrator?
+
+-----------------------------------------------------------
+June 3, 2026
+
+In Debug log we see message 2026-06-02 13:37:20,626 ERROR [com.webmethods.mft.event               ][8300] - Error while fetching UI settings for user.
+java.lang.NullPointerException: Cannot invoke "com.webmethods.mft.log.MFTLogger.trace(java.lang.Throwable, java.lang.String, java.lang.Object[])" because "com.webmethods.mft.db.Datastore.logger" is null
+
+-----------------------------------------------------------
+June 3, 2026
+
+Hello #wm-mft-swat  Userjust installed 12 version and cannot open MFT UI , error is 2026-06-02 13:37:20,727 ERROR [com.webmethods.mft.asset               ][9999] - An internal error has occurred while executing the service. Contact your System Administrator.
+com.webmethods.mft.exception.MFTServiceException: An internal error has occurred while executing the service. Contact your System Administrator.
+              at com.webmethods.
+
+-----------------------------------------------------------
+June 3, 2026
+
+Questions on IWHI - wM MFT.
+
+1. The platform provides scheduled action that "triggers" file transfer at specific time (or interval). Is there a way to "triggers" a file transfer via an REST API call. 
+2. Can the platform Certificate store integrates with external key vault (like Hashicorp)?
+
+
+
+-----------------------------------------------------------
+June 2, 2026
+
+Hi team,
+My prospect is looking for a mft solution to deploy on premise.
+As part of a post processing action, they would like to launch a virus scanner.
+Based on the result they would like to move the file either in a quarantine or to approved folder.
+If it is not passing the virus scan a mail should also be sent.
+
+I find the way to launch the script.
+If the script is not exit 0 a failure can be catched and mail sent.
+I missing
+
+* can we get a custom error that the script (sh file) can returns ? 
+* can we move the file to a quarantine folder and send a mail or is it either one or the other (only one configurable action)? 
+
+
+
+-----------------------------------------------------------
+June 2, 2026
+
+:announcement-6669: New Use case on Seismic - Bupa Insurance :announcement-6669:
+
+:bulb:In 2025, Bupa Insurance, one of the largest multinational health insurance company, was going through a major cloud transformation where they had to migrate to Azure cloud from data centre and eventually, from self-managed MFT to a SaaS-based MFT solution. They wanted the migration to be secure, reliable and seamless for their millions of customers. Bupa evaluated many cloud solutions but none performed better than IBM wM Hybrid Integration.
+Bupa signed a deal to subscribe IWHI to carry on this mission critical project successfully.
+
+:link: Learn more about the Bupa use case through its challenges, solution and competition evaluation in this use case document.
+For more details on the deal, visit Bupa win wire.
+
+:clapbig: Thank you @Kalpshekhar Gupta for driving this successful engagement with Bupa and sharing the story with us.
+
+#IWHI #MFT #wMIntegration #EndEndMonitoring
+
+cc: @jcalandra, @Matthias Biehl, @Yukti, @Vijayalakshmi G
+
+-----------------------------------------------------------
+June 2, 2026
+
+
+
+-----------------------------------------------------------
+June 2, 2026
+
+Coming back to this use case.
+Is it something common to see with wM MFT ?
+Do we have any customer references ?
+
+-----------------------------------------------------------
+June 2, 2026
+
+Hi Arjiit, means in the absence of Metering server, how can customer estimate their potential number of mft transactions, to review if their entitlements are sufficient to cover their usage.
+
+-----------------------------------------------------------
+June 2, 2026
+
+Hey Team,
+
+My CSE and I are doing a decent sized tender for a State Government Department in Australia.
+It is in regards to MFT.
+
+Does anyone have the box folder.. or the location where we have RFP responses for IWHI?
+ All together in one area?
+
+-----------------------------------------------------------
+May 30, 2026
+
+Hi Team,
+
+One of my customers is currently using WM MFT 10.15. Beyond the metering server reports, they would like to know how they can check their own transaction statistics similar to what the metering report provides for commercial purposes. For ex. number of inbound and outbound transaction counts along with file size measurements (e.g., every 5 MB).
+
+I am aware of the transaction logs feature in the Active Transfer Server UI, but this does not seem suitable for commercial calculations. It would require extensive manual effort to measure inbound/outbound transactions with file size tracking.
+
+Is there any command, API, log, or database table that can provide monthly API call statistics or detailed file transfer information? Ideally, something that serves as the true source of the metering reports.
+
+Thanks.
