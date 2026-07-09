@@ -85,3 +85,62 @@ body {
      step (chart accents, the FAQ-published marker, history icon hover) */
   --teal-60:            #08bdba;
 }
+
+/* ---- Keyboard focus: a visible ring on every interactive element (the
+   components disable native outlines for their own styling) ---- */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--focus, #0f62fe) !important;
+  outline-offset: 1px;
+}
+
+/* The search field draws its own border; ring the FIELD, not the inner
+   input (a ring inside a bordered box reads as a nested double border) */
+.qa-search input:focus-visible { outline: none !important; }
+.qa-search:focus-within {
+  outline: 2px solid var(--focus, #0f62fe);
+  outline-offset: 1px;
+}
+
+/* Range sliders draw their own thumb focus ring; the invisible overlay
+   input must not ALSO get a rectangle outlined around the whole track */
+input[type="range"]:focus-visible { outline: none !important; }
+
+/* Placeholders were browser-default gray — illegible on dark fields */
+::placeholder { color: var(--text-placeholder); opacity: 1; }
+
+/* ---- Responsive layout: the dashboard must stay usable in a split-screen
+   or half-width window. Inline styles carry the wide-screen look; these
+   overrides only kick in below the breakpoints. ---- */
+@media (max-width: 900px) {
+  .qa-page {
+    padding-left: 20px !important;
+    padding-right: 20px !important;
+  }
+  .qa-page h1 { font-size: 26px !important; }
+  .qa-stat-row {
+    gap: 18px 36px !important;
+    padding: 18px 20px !important;
+  }
+  .qa-controls {
+    flex-wrap: wrap;
+    row-gap: 10px;
+  }
+  .qa-controls > span { flex-wrap: wrap; row-gap: 8px; }
+  /* Week in Review hero: the fixed 320px side column stacks below */
+  .qa-hero { grid-template-columns: 1fr !important; }
+  .qa-page h2 { font-size: 24px !important; }
+}
+
+@media (max-width: 720px) {
+  .qa-btn-label { display: none; }
+  .qa-page {
+    padding-top: 24px !important;
+    padding-bottom: 48px !important;
+  }
+  .qa-page h1 { font-size: 23px !important; }
+}

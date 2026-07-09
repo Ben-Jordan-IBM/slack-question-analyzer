@@ -1,7 +1,8 @@
 // App header: brand, animated Dashboard | Week in Review toggle,
 // Upload transcript, and the account / sign-in avatar.
 function AppHeader({ view, setView, onUpload, onHistory, onTopics, onSettings, version, theme, onToggleTheme }) {
-  const segs = [{ key: 'dashboard', label: 'Dashboard' }, { key: 'week', label: 'Week in Review' }];
+  const segs = [{ key: 'dashboard', label: 'Dashboard' },
+    { key: 'week', label: <React.Fragment>Week<span className="qa-btn-label"> in Review</span></React.Fragment> }];
   const activeIdx = segs.findIndex((s) => s.key === view);
 
   const iconBtn = {
@@ -44,7 +45,7 @@ function AppHeader({ view, setView, onUpload, onHistory, onTopics, onSettings, v
             v{version}
           </span>
         ) : null}
-        <button onClick={onUpload} style={{
+        <button onClick={onUpload} aria-label="Upload transcript" style={{
           height: 32, padding: '0 14px', display: 'inline-flex', alignItems: 'center', gap: 8,
           background: 'transparent', color: '#fff', border: '1px solid var(--gray-70)',
           fontFamily: 'var(--font-sans)', fontSize: 13, cursor: 'pointer', whiteSpace: 'nowrap',
@@ -52,7 +53,7 @@ function AppHeader({ view, setView, onUpload, onHistory, onTopics, onSettings, v
         }}
           onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--gray-80)'; e.currentTarget.style.borderColor = 'var(--gray-50)'; }}
           onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.borderColor = 'var(--gray-70)'; }}>
-          <Icon name="upload" size={15} /> Upload transcript
+          <Icon name="upload" size={15} /> <span className="qa-btn-label">Upload transcript</span>
         </button>
 
         <button onClick={onHistory} title="Analysis history" aria-label="Analysis history"

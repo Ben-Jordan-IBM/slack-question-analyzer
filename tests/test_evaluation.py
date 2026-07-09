@@ -492,3 +492,12 @@ def test_flip_report_errored_run_contributes_no_outcomes():
     assert report['stable_pass'] == 2
     assert report['flaky'] == {}
     assert report['errored_runs'] == 1
+
+
+def test_evaluate_records_the_real_fixture_path():
+    """Audit regression: result['fixture'] was always '.' (getattr on a
+    dict). The loaded fixture carries its path through to the result."""
+    from pathlib import Path
+    path = Path(__file__).parent.parent / 'fixtures' / 'field_run_2026-06-10.json'
+    fixture = load_fixture(str(path))
+    assert fixture['_path'] == str(path)

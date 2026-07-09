@@ -1,6 +1,8 @@
 """Tests for the shared text primitives — announcement/notice detection."""
 
-from slack_question_analyzer.textutil import looks_like_announcement
+from slack_question_analyzer.textutil import (DATE_MONTH_NAME,
+                                              looks_like_announcement,
+                                              looks_like_status_request)
 
 
 WEBINAR_PROMO = (
@@ -122,3 +124,33 @@ def test_short_messages_are_never_announcements():
     assert not looks_like_announcement("Register here!")
     assert not looks_like_announcement("")
     assert not looks_like_announcement(None)
+
+
+def test_status_target_regex_is_backtracking_safe():
+    """Audit regression (ReDoS): 'server1' followed by a long dashed rule —
+    a common paste shape — sent the host-like alternative into exponential
+    backtracking (21s at 42 dashes, hanging the analysis worker). Must
+    answer instantly at any length, and real hostnames must still match."""
+    import time as _time
+    start = _time.perf_counter()
+    result = looks_like_status_request(
+        'can someone check server1' + '-' * 120)
+    elapsed = _time.perf_counter() - start
+    assert elapsed < 0.5
+    assert isinstance(result, bool)
+
+    # The real field shape still routes to review
+    assert looks_like_status_request(
+        'What is the status of prod537147.a-vir-s100.mft.ipaas.automation.ibm.com?')
+
+
+def test_month_name_dates_require_a_real_month():
+    """Audit regression: any 3-9 letter word before 'D, YYYY' was recognized
+    as a date that parse_question_date then rejected — breaking the
+    'every recognized date is also parseable' invariant."""
+    import re as _re
+    rx = _re.compile(DATE_MONTH_NAME)
+    assert rx.search('June 5, 2026')
+    assert rx.search('march 20, 2024')
+    assert not rx.search('Monday 3 2024')
+    assert not rx.search('Version 3 2024')

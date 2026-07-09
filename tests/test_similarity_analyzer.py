@@ -1237,3 +1237,60 @@ def test_rescue_requires_a_shared_distinctive_subject_word(monkeypatch):
     clusters = [[0, 1]] + [[i] for i in range(2, n)]
     result, rescued = analyzer._rescue_singletons(clusters, sim, buckets, verifier)
     assert rescued == {vault}
+
+
+def test_poisoned_bank_centroid_cannot_reclaim_unrelated_questions(monkeypatch):
+    """Field regression (2026-07-08): a bank centroid BLENDED from a past
+    over-merge sits between several unrelated asks; both score >=0.85
+    against it, so it re-claims them as one group in every future analysis,
+    bypassing clustering, verify, and rescue. A claimed member sharing not
+    one distinctive subject word with the rest of its claim is released."""
+    analyzer = make_analyzer(monkeypatch, threshold='0.85')
+
+    buckets = _template_corpus(
+        'Does wm mft saas support container-level azure tokens?',
+        'Are there alternative solutions for integrating mft saas with hashicorp vault?')
+    n = len(buckets)
+    # q0 and q1 are dissimilar to each other (0.6) but the poisoned
+    # centroid (their blend) scores ~0.89 against BOTH
+    embeddings = np.array([[1.0, 0.0], [0.6, 0.8]] + [[0.0, 1.0]] * (n - 2))
+    poisoned = {'topic': 'Supported Protocols', 'centroid': [1.6, 0.8]}
+
+    claims = analyzer._claim_known_topics(embeddings, [poisoned], buckets)
+    assert claims == []  # both members released back to clustering
+
+    # Control: a HEALTHY topic whose two claimed questions share their
+    # subject ('azure token') keeps its claim
+    buckets = _template_corpus(
+        'Does wm mft saas support container-level azure tokens?',
+        'Why does azure token auth fail on mft saas?')
+    claims = analyzer._claim_known_topics(embeddings, [poisoned], buckets)
+    assert claims == [[0, 1]]
+
+    # Without buckets (legacy callers), claiming works as before
+    claims = analyzer._claim_known_topics(embeddings, [poisoned])
+    assert claims == [[0, 1]]
+
+
+def test_two_topic_poisoned_claim_splits_into_components(monkeypatch):
+    """Audit regression: a centroid blended from an over-merge of TWO
+    topics claims two internally-coherent halves — a member-vs-rest test
+    never releases anyone (each member finds its partner). Connected
+    components split the claim into its coherent halves instead."""
+    analyzer = make_analyzer(monkeypatch, threshold='0.85')
+
+    texts = [
+        'How do we rotate the ssh key for the transfer user?',
+        'Where is the ssh key configured for transfers?',
+        'Why did the timezone shift after the dst change?',
+        'Which timezone setting controls the dst change display?',
+    ] + [f'How to configure the mft saas widget{i} feature?' for i in range(8)]
+    buckets = [[question(t)] for t in texts]
+    n = len(buckets)
+    # All four score >= 0.85 against the poisoned blended centroid
+    embeddings = np.array([[1.0, 0.45], [1.0, 0.5], [0.45, 1.0], [0.5, 1.0]]
+                          + [[-1.0, 0.0]] * (n - 4))
+    poisoned = {'topic': 'Mixed Topic', 'centroid': [1.0, 1.0]}
+
+    claims = analyzer._claim_known_topics(embeddings, [poisoned], buckets)
+    assert sorted(claims) == [[0, 1], [2, 3]]  # split, nothing lost

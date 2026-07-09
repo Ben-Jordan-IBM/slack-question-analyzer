@@ -44,10 +44,26 @@ ANALYSES_DIR = Path(os.getenv('ANALYSES_DIR', BASE_DIR / 'analyses'))
 JOBS_DIR = Path(os.getenv('JOBS_DIR', BASE_DIR / 'jobs'))
 
 VALID_PROVIDERS = ('ollama',)  # local-only by design
-MAX_CONTENT_MB = int(os.getenv('MAX_CONTENT_MB', '50'))
+
+
+def _env_int(name: str, default: int) -> int:
+    """Integer env var with a tolerant fallback: a typo in .env must not
+    crash the server at import time or fail a finished analysis job."""
+    raw = os.getenv(name)
+    if raw is None or not raw.strip():
+        return default
+    try:
+        return int(raw)
+    except ValueError:
+        logging.getLogger(__name__).warning(
+            "%s=%r is not a number; using %d", name, raw, default)
+        return default
+
+
+MAX_CONTENT_MB = _env_int('MAX_CONTENT_MB', 50)
 JOB_RETENTION_SECONDS = 3600  # finished jobs are pruned after an hour
 # Local models degrade badly under parallel analyses; queue jobs by default
-MAX_CONCURRENT_JOBS = int(os.getenv('MAX_CONCURRENT_JOBS', '1'))
+MAX_CONCURRENT_JOBS = _env_int('MAX_CONCURRENT_JOBS', 1)
 
 app = Flask(__name__)
 app.config['MAX_CONTENT_LENGTH'] = MAX_CONTENT_MB * 1024 * 1024
@@ -215,6 +231,16 @@ def recover_interrupted_jobs():
     """
     if not JOBS_DIR.is_dir():
         return 0
+    # Leader lock: under a multi-worker WSGI runner every process would
+    # otherwise re-queue (and re-run) the same interrupted jobs. First
+    # process in wins; a stale lock (a crash mid-recovery) expires.
+    lock = JOBS_DIR / '.recovery.lock'
+    try:
+        if lock.exists() and time.time() - lock.stat().st_mtime < 600:
+            return 0
+        lock.write_text(str(os.getpid()), encoding='utf-8')
+    except OSError:
+        pass
 
     recovered = 0
     for meta_path in JOBS_DIR.glob('*.json'):
@@ -296,7 +322,7 @@ def _save_analysis(results):
         json.dump(results, f, ensure_ascii=False)
 
     # Keep history bounded: prune the oldest beyond MAX_SAVED_ANALYSES (0 = keep all)
-    keep = int(os.getenv('MAX_SAVED_ANALYSES', '200'))
+    keep = _env_int('MAX_SAVED_ANALYSES', 200)
     if keep > 0:
         saved = sorted(ANALYSES_DIR.glob('*.json'))
         for stale in saved[:-keep]:
@@ -919,6 +945,14 @@ def topic_history(topic_id):
             if hit:
                 analyses_with_topic += 1
 
+    # Evict cache entries for analyses that were deleted or pruned —
+    # on a long-lived server the index otherwise grows forever
+    if ANALYSES_DIR.is_dir():
+        live = {str(p) for p in ANALYSES_DIR.glob('*.json')}
+        with _history_lock:
+            for key in [k for k in _history_index if k not in live]:
+                del _history_index[key]
+
     if not seen:
         return jsonify({'success': False,
                         'error': 'No saved analysis contains this topic'}), 404
@@ -985,6 +1019,16 @@ def topic_history(topic_id):
 
 
 @app.route('/api/config', methods=['GET'])
+def _configured_threshold():
+    raw = os.getenv('SIMILARITY_THRESHOLD')
+    if not raw:
+        return 'auto'
+    try:
+        return float(raw)
+    except ValueError:
+        return 'auto'  # a typo'd threshold must not 500 the config endpoint
+
+
 def get_config():
     """Get current configuration"""
     from slack_question_analyzer import __version__
@@ -993,8 +1037,7 @@ def get_config():
         'version': __version__,
         'config': {
             'provider': os.getenv('AI_PROVIDER', 'ollama').strip().lower(),
-            'threshold': (float(os.getenv('SIMILARITY_THRESHOLD'))
-                          if os.getenv('SIMILARITY_THRESHOLD') else 'auto'),
+            'threshold': _configured_threshold(),
             'ollama_url': os.getenv('OLLAMA_URL', 'http://localhost:11434'),
             'ollama_model': os.getenv('OLLAMA_MODEL', 'nomic-embed-text')
         }

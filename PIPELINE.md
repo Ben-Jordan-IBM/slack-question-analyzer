@@ -1,4 +1,4 @@
-# The Question Funnel — Pipeline Spec (v2.56.0, prompt pack 25, taxonomy v5)
+# The Question Funnel — Pipeline Spec (v2.59.0, prompt pack 26, taxonomy v5)
 
 > The stages below describe the CURRENT architecture. The change-by-change
 > history of how it got here (14 measured eval rounds through v2.40, plus
@@ -25,7 +25,9 @@ free and prompt edits self-invalidate the cache.
 ## Stage 0 — Parse & extract (fast model + code)
 
 1. Transcript parsed into messages (Slack JSON with threads, dashed-separator
-   text, or CSV). Markup, code blocks, mentions stripped. In plain text,
+   text, CSV, or text copied straight out of the Slack app — author +
+   timestamp line pairs; an '<n> replies' divider marks a THREAD copy,
+   whose first message becomes the ask and the rest its replies). Markup, code blocks, mentions stripped. In plain text,
    '>'-quoted lines are thread replies: attached to the parent for answer
    detection, never extracted as questions (a responder's clarifying
    question is not an ask); '# ' heading lines are structural markup.
@@ -74,6 +76,11 @@ can surface as a coherent cluster. In order:
    known category centroid ≥ `BANK_MATCH_THRESHOLD=0.85`. Two questions
    claiming the same category group directly, regardless of their similarity
    *to each other*. Single-question claims are released back to clustering.
+   **Subject coherence** (v2.57): a claimed member sharing not one
+   distinctive subject word with the rest of its claim is released back
+   to clustering — a centroid blended from a past over-merge sits between
+   several unrelated asks and would otherwise re-claim them as one group
+   in every future analysis, poison that bypasses every downstream guard.
 3. **Average-link clustering** at a FIXED bar `IN_BUCKET_THRESHOLD=0.8`
    (a user-pinned `SIMILARITY_THRESHOLD` overrides it). The LLM gates below
    guard every borderline merge, so the adaptive noise gate stays out of
@@ -363,6 +370,71 @@ clustering is under-forming upstream — that's the real problem, not a
 fuller-looking output.
 
 ## Appendix — design history by eval round
+
+> **v2.59 (deep-sweep fixes, pack 26):** a second audit pass over the
+> modules earlier audits skipped. Two demonstrated defects: (1) a ReDoS
+> in the status-request target regex — 'server1' followed by a dashed
+> rule sent the host-like alternative into exponential backtracking (21s
+> at 42 dashes), hanging the analysis worker on a common paste shape;
+> the nested-hyphen ambiguity is gone and a timing regression test
+> guards it. (2) The DETECT pass was silently fed the full EXTRACTION
+> few-shot: DETECT_SYSTEM shares its first 40 characters with
+> EXTRACT_SYSTEM and the routing sniffed the prompt prefix — an explicit
+> few_shot flag replaces the sniffing (pack 26; detect verdicts re-judge
+> once against the corrected prompt). Also: month-name date recognition
+> anchored to real months (restoring the recognized-implies-parseable
+> invariant), eval results carry the real fixture path, yearless copied
+> dates never land in the future, integer env vars tolerate typos, a bad
+> SIMILARITY_THRESHOLD no longer 500s /api/config, job recovery takes a
+> cross-process leader lock, and the topic-history cache evicts deleted
+> analyses. UI: the settings slider is visible in dark mode, range
+> inputs keep a single focus affordance, disabled buttons use the
+> semantic disabled surface, and a component or JSX load failure shows a
+> visible error banner instead of a silent blank page.
+
+> **v2.58.1 (pre-ship audit fixes):** the Slack-copy detector was
+> hijacking pasted incident notes and service logs ('label / clock time /
+> body' is not unique to Slack): seconds-precision times no longer match
+> (Slack stamps are HH:MM), and a bare 24-hour time only counts as a
+> boundary when the line above looks like a real name (multi-word, no
+> digits) — AM/PM and day-prefixed stamps still accept single-word
+> display names. Bank-claim coherence upgraded from member-vs-rest to
+> CONNECTED COMPONENTS over pairwise shared-subject edges: a centroid
+> blended from two topics claims two coherent halves that the old test
+> never released; components split them into separate claims. UI: single
+> keyboard focus ring on buttons (the component's inline ring stacked
+> with the new global outline), Week in Review reflows at split width,
+> search-field focus rings the field not the inner input, placeholders
+> use the theme token, the header toggle collapses to 'Week' on narrow
+> screens, and the bundle's drift-detection hashes were regenerated.
+
+> **v2.58 (paste-a-thread + responsive UI):** a fourth input format —
+> text copied straight out of the Slack app (author + timestamp-only line
+> pairs), with Slack-style dates ('Jun 9th at 2:30 PM', 'Today at 9:15',
+> day dividers) normalized to parseable dates (year defaults to the
+> current one, as Slack omits it). An '<n> replies' divider after the
+> first message marks a THREAD copy: root becomes the ask, the rest its
+> replies, feeding answer detection; without it each message stands
+> alone. The upload modal gained a paste box wired to the existing
+> content API. UI: the dashboard reflows for split-screen widths
+> (responsive classes over the inline base styles), button labels are
+> centered (the Carbon asymmetric padding read as off-center text), the
+> header collapses to icons under 720px, and every control shows a
+> keyboard focus ring.
+
+> **v2.57 (bank-claim poisoning fix):** the v2.56 guards closed both LLM
+> merge paths, and the very next field run re-formed the same bad group
+> anyway — through the topic BANK. Earlier analyses had recorded the
+> over-merged group, so the bank entry's centroid is a blend of three
+> unrelated asks; each scores ≥0.85 against that blend, and bank claims
+> run BEFORE clustering and skip clustering, borderline verify, and
+> rescue entirely. Self-sustaining poison: every re-analysis re-recorded
+> the group and re-hardened the centroid. Fix: claimed groups get the
+> same zero-shared-distinctive-subject-word test as the other guards —
+> an incoherent member is released back to normal clustering (logged),
+> and a claim reduced below 2 members dissolves. Existing poisoned
+> entries stop claiming; deleting them from Learned Topics cleans up
+> their name and history.
 
 > **v2.56 (over-merge fix, pack 25):** the first post-migration field run
 > re-exposed template merging one layer up: a supported-token check, a

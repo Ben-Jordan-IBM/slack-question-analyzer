@@ -217,3 +217,117 @@ def test_markup_in_json_messages_is_cleaned():
     ])
     questions = QuestionExtractor().parse_slack_content(content)
     assert questions[0]['text'] == 'how do I configure the webhook?'
+
+
+SLACK_THREAD_COPY = """Ben Jordan
+  10:15 AM
+How do I raise the SFTP timeout for big transfers?
+It keeps aborting around 2GB.
+
+3 replies
+
+Jane Doe
+  10:20 AM
+Set transfer.timeout to 300 in the partner settings and restart the listener.
+
+Ben Jordan
+  10:24 AM
+thanks, that worked!
+"""
+
+SLACK_CHANNEL_COPY = """Monday, June 8th
+
+Ben Jordan
+  10:15 AM
+How do I raise the SFTP timeout for big transfers?
+
+Jane Doe
+Jun 9th at 2:30 PM
+Is there a REST API to deactivate scheduled actions?
+(edited)
+"""
+
+
+def test_pasted_slack_thread_becomes_root_plus_replies():
+    """Text copied out of a Slack THREAD (author + timestamp lines, with
+    the 'N replies' divider) parses as ONE message whose replies feed
+    answer detection — the paste-a-thread path."""
+    extractor = QuestionExtractor()
+    messages = extractor.extract_messages(SLACK_THREAD_COPY)
+    assert len(messages) == 1
+    assert 'SFTP timeout' in messages[0]['text']
+    assert 'aborting around 2GB' in messages[0]['text']
+    assert len(messages[0]['replies']) == 2
+    assert messages[0]['replies'][0].startswith('Set transfer.timeout')
+    # Furniture never leaks into content
+    assert 'replies' not in messages[0]['text']
+
+
+def test_pasted_slack_channel_copy_keeps_messages_standalone():
+    """Without the replies divider, each author+timestamp message stands
+    alone (a channel copy behaves like a dashed transcript), and day
+    dividers / timestamp lines supply dates."""
+    extractor = QuestionExtractor()
+    messages = extractor.extract_messages(SLACK_CHANNEL_COPY)
+    assert len(messages) == 2
+    assert messages[0]['text'].startswith('How do I raise')
+    assert messages[1]['text'].startswith('Is there a REST API')
+    assert 'edited' not in messages[1]['text']
+    assert messages[0]['date'] and 'June 8' in messages[0]['date']
+    assert messages[1]['date'] and 'Jun 9' in messages[1]['date']
+
+
+def test_dashed_transcripts_do_not_trigger_the_slack_copy_parser():
+    """The Slack-copy detector must not claim dashed transcripts (they
+    have date lines, never author + clock-time line pairs)."""
+    content = ("June 5, 2026\nHow do I reset my password?\n"
+               "-----------------------------------------------------------\n"
+               "June 6, 2026\nWhat is the deploy schedule?\n")
+    extractor = QuestionExtractor()
+    messages = extractor.extract_messages(content)
+    assert len(messages) == 2
+    assert messages[0]['date'] == 'June 5, 2026'
+
+
+def test_incident_notes_and_logs_are_not_hijacked_as_slack_copies():
+    """Audit regression: 'short label / clock time / body' is also the
+    shape of incident notes and service logs. Single-word labels with bare
+    24-hour times (and any line with seconds) must NOT trigger the
+    Slack-copy parser — the text parser keeps every line."""
+    notes = ("Incident\n14:32\nTransfers started failing on node 2.\n\n"
+             "Mitigation\n15:10\nFailover to node 1 restored service.\n")
+    log = ("Startup\n06:47:18\nService initialized in 2.3s.\n\n"
+           "Shutdown\n23:59:01\nGraceful stop requested.\n")
+    extractor = QuestionExtractor()
+    for content, label in ((notes, 'Incident'), (log, 'Startup')):
+        messages = extractor.extract_messages(content)
+        joined = ' '.join(m['text'] for m in messages)
+        assert label in joined  # label lines survive (text parser path)
+
+    # Real Slack copies still work both ways: AM/PM with a single-word
+    # display name, and bare 24-hour times with a full name
+    ampm = ("ben\n3:42 PM\nHow do I raise the timeout?\n\n"
+            "jane\n3:50 PM\nIs there a REST API for actions?\n")
+    h24 = ("Ben Jordan\n14:32\nHow do I raise the timeout?\n\n"
+           "Jane Doe\n14:50\nIs there a REST API for actions?\n")
+    for content in (ampm, h24):
+        messages = extractor.extract_messages(content)
+        assert len(messages) == 2
+        assert messages[0]['text'].startswith('How do I raise')
+
+
+def test_yearless_copy_dates_never_land_in_the_future(monkeypatch):
+    """A yearless 'Dec 20th' pasted in January means LAST December —
+    Slack omits the year for the past twelve months, not the future."""
+    import slack_question_analyzer.question_extractor as qe
+
+    class FrozenDT(qe.datetime):
+        @classmethod
+        def now(cls, tz=None):
+            return cls(2026, 1, 5)
+
+    monkeypatch.setattr(qe, 'datetime', FrozenDT)
+    extractor = QuestionExtractor()
+    assert extractor._copy_date('Dec 20th at 3:42 PM') == 'Dec 20, 2025'
+    assert extractor._copy_date('Jan 3rd at 9:00 AM') == 'Jan 3, 2026'
+    assert extractor._copy_date('Jul 7th, 2026 at 1:00 PM') == 'Jul 7, 2026'

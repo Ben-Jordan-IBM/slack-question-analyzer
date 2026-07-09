@@ -43,6 +43,35 @@
 <script src="../../vendor/babel.min.js"></script>
 <script src="../../vendor/lucide.min.js"></script>
 <script src="../../_ds_bundle.js?v=2"></script>
+<script>
+// A component or JSX error used to mean a silent blank page with the
+// reason buried in the console. Surface it instead: any uncaught error
+// (including Babel compile errors in the .jsx files below) and any
+// design-system construction error becomes a visible banner.
+(function () {
+  var shown = {};
+  function banner(message) {
+    if (shown[message]) return;
+    shown[message] = true;
+    var el = document.createElement('div');
+    el.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:9999;' +
+      'background:#da1e28;color:#fff;font:13px/1.5 IBM Plex Sans,sans-serif;' +
+      'padding:10px 16px;white-space:pre-wrap;word-break:break-word;';
+    el.textContent = 'Dashboard failed to load: ' + message +
+      '\nHard-refresh (Ctrl+F5); if it persists, re-run update and report this message.';
+    document.body.appendChild(el);
+  }
+  window.addEventListener('error', function (e) {
+    if (e && e.message) banner((e.filename ? e.filename.split('/').pop() + ': ' : '') + e.message);
+  });
+  window.addEventListener('DOMContentLoaded', function () {
+    var ds = window.QuestionAnalyzerDesignSystem_03a921 || {};
+    (ds.__errors || []).forEach(function (err) {
+      banner(err.path + ': ' + err.error);
+    });
+  });
+})();
+</script>
 <script src="api.js"></script>
 <script type="text/babel" src="Icon.jsx"></script>
 <script type="text/babel" src="anim.jsx"></script>

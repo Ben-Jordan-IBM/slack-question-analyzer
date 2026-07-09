@@ -1296,3 +1296,18 @@ def test_compound_question_missing_half_restored_by_regex_fallback(monkeypatch):
     texts = [q['text'] for q in results['ungrouped_questions']]
     assert results['total_questions'] == 2
     assert any('Kafka' in t for t in texts), texts
+
+
+def test_detect_prompt_excludes_the_extraction_few_shot(monkeypatch):
+    """Audit regression: DETECT_SYSTEM shares its first 40 chars with
+    EXTRACT_SYSTEM, and a startswith() sniff fed the full extraction
+    few-shot (worked examples and all) to the implicit-request detector.
+    The detect pass must send plain 'Messages:' with no examples."""
+    captured = []
+    patch_chat(monkeypatch, [json.dumps({'questions': []})], captured)
+    GroupLabeler('ollama').detect_questions(['need help with the proxy setup'])
+
+    user_msg = captured[0]['body']['messages'][1]['content']
+    assert user_msg.startswith('Messages:')
+    assert 'Example messages:' not in user_msg
+    assert 'bulk-disable' not in user_msg  # the extraction worked example

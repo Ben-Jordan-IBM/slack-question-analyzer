@@ -15,7 +15,7 @@ function WeekView({ onInspect }) {
 
   if (weekly === undefined) {
     return (
-      <div style={{ maxWidth: 1040, margin: '0 auto', padding: '60px 40px', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, color: 'var(--text-secondary)', fontSize: 14 }}>
+      <div className="qa-page" style={{ maxWidth: 1040, margin: '0 auto', padding: '60px 40px', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, color: 'var(--text-secondary)', fontSize: 14 }}>
         <Icon name="loader" size={16} /> Loading weekly trends…
       </div>
     );
@@ -26,7 +26,7 @@ function WeekView({ onInspect }) {
   if (!d || !d.groups || d.groups.length === 0) {
     // Backend-driven empty state: no mock data, ever
     return (
-      <div style={{ maxWidth: 1040, margin: '0 auto', padding: '70px 40px 80px', width: '100%', textAlign: 'center' }}>
+      <div className="qa-page" style={{ maxWidth: 1040, margin: '0 auto', padding: '70px 40px 80px', width: '100%', textAlign: 'center' }}>
         <h2 style={{ fontSize: 32, fontWeight: 300, marginBottom: 16 }}>Week in Review</h2>
         <p style={{ color: 'var(--text-secondary)', fontSize: 16, maxWidth: 460, margin: '0 auto' }}>
           {d ? 'No questions in the most recent week of your latest analysis — upload a newer transcript to see trends.'
@@ -46,7 +46,7 @@ function WeekView({ onInspect }) {
   const weekMax = Math.max(1, d.totalThisWeek, d.totalLastWeek);
 
   return (
-    <div style={{ maxWidth: 1040, margin: '0 auto', padding: '36px 40px 80px', width: '100%' }}>
+    <div className="qa-page" style={{ maxWidth: 1040, margin: '0 auto', padding: '36px 40px 80px', width: '100%' }}>
       <Reveal>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
           <div>
@@ -63,7 +63,7 @@ function WeekView({ onInspect }) {
 
       {/* Trend hero */}
       <Reveal delay={80}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 320px', border: '1px solid var(--border-subtle)', marginBottom: 34, background: 'var(--layer-02)' }}>
+        <div className="qa-hero" style={{ display: 'grid', gridTemplateColumns: '1fr 320px', border: '1px solid var(--border-subtle)', marginBottom: 34, background: 'var(--layer-02)' }}>
           <div style={{ padding: '22px 26px 14px' }}>
             <div style={{ fontSize: 11, color: 'var(--text-helper)', fontWeight: 500, marginBottom: 4 }}>Weekly question volume</div>
             <AreaChart data={d.trend} labels={d.trendLabels} width={560} height={232} />

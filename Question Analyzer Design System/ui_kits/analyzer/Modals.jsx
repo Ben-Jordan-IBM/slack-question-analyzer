@@ -43,6 +43,10 @@ function UploadModal({ open, onClose, onImported }) {
   // server-side (the backend already accepted multiple files; only this
   // modal was single-file)
   const [files, setFiles] = React.useState([]);
+  // Paste mode: a copied Slack thread (or any transcript text) analyzed
+  // as if it were an uploaded file — the backend accepts raw text
+  const [pasteMode, setPasteMode] = React.useState(false);
+  const [pasteText, setPasteText] = React.useState('');
   const [phase, setPhase] = React.useState('pick'); // pick | running | done | error
   const [progress, setProgress] = React.useState(0);
   const [results, setResults] = React.useState(null);
@@ -56,6 +60,8 @@ function UploadModal({ open, onClose, onImported }) {
     if (!open) {
       runGeneration.current += 1;
       setFiles([]);
+      setPasteMode(false);
+      setPasteText('');
       setPhase('pick');
       setProgress(0);
       setResults(null);
@@ -90,7 +96,8 @@ function UploadModal({ open, onClose, onImported }) {
   const jobIdRef = React.useRef(null);
 
   const run = async () => {
-    if (!files.length) return;
+    const input = pasteMode ? pasteText.trim() : files;
+    if (pasteMode ? !input : !files.length) return;
 
     const generation = runGeneration.current;
     setPhase('running');
@@ -111,8 +118,9 @@ function UploadModal({ open, onClose, onImported }) {
       }
 
       // Files go to the backend as-is (zips are unpacked server-side;
-      // multiple files merge into one corpus)
-      const data = await window.QA_API.analyze(files, settings, onProgress,
+      // multiple files merge into one corpus); pasted text goes as the
+      // raw transcript content
+      const data = await window.QA_API.analyze(input, settings, onProgress,
         (jobId) => { jobIdRef.current = jobId; });
 
       // Results still land globally (the dashboard shows them on reopen),
@@ -150,10 +158,21 @@ function UploadModal({ open, onClose, onImported }) {
 
   return (
     <Modal open={open} onClose={onClose} width={520}>
-      <ModalHead title="Upload transcript" sub="Drop the JSON export your Slack bot produces. Questions are extracted, grouped, and merged into your dashboard." onClose={onClose} />
+      <ModalHead title="Add a transcript" sub="Drop an export file or paste a Slack thread. Questions are extracted, grouped, and merged into your dashboard." onClose={onClose} />
       <div style={{ padding: '0 24px 24px' }}>
         {phase === 'pick' ? (
           <React.Fragment>
+            {pasteMode ? (
+              <React.Fragment>
+                <textarea value={pasteText} onChange={(e) => setPasteText(e.target.value)}
+                  rows={9} autoFocus
+                  placeholder={'Paste a Slack thread or transcript here.\n\nCopy a whole thread straight out of Slack (names and timestamps included) and the first message becomes the question, the rest its replies.'}
+                  style={{ width: '100%', boxSizing: 'border-box', resize: 'vertical', fontFamily: 'var(--font-sans)', fontSize: 13, lineHeight: 1.5, color: 'var(--text-primary)', background: 'var(--field)', border: '1px dashed var(--border-strong)', padding: '12px 14px' }} />
+                <div style={{ fontSize: 11.5, color: 'var(--text-helper)', marginTop: 6 }}>
+                  Also accepts the same text formats as file upload (dashed transcripts, Slack JSON, CSV).
+                </div>
+              </React.Fragment>
+            ) : (
             <FileDropzone fileName={null} accept=".json,.txt,.csv,.zip" multiple
               title={files.length ? 'Drop another file to add it' : 'Drop a transcript export here or click to browse'}
               hint="JSON, TXT, CSV, a zipped Slack export — or several files, analyzed together"
@@ -162,7 +181,12 @@ function UploadModal({ open, onClose, onImported }) {
                   && p.lastModified === f.lastModified)
                   ? prev : [...prev, f])}
               onClear={() => {}} />
-            {files.length ? (
+            )}
+            <button onClick={() => setPasteMode(!pasteMode)}
+              style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: 0, marginTop: 10, fontFamily: 'var(--font-sans)', fontSize: 12.5, color: 'var(--link)' }}>
+              {pasteMode ? 'Upload files instead' : 'Or paste a Slack thread / text instead'}
+            </button>
+            {files.length && !pasteMode ? (
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 12 }}>
                 {files.map((f, i) => (
                   <span key={i} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--text-secondary)', background: 'var(--field)', padding: '3px 8px' }}>
@@ -178,8 +202,9 @@ function UploadModal({ open, onClose, onImported }) {
             ) : null}
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 20 }}>
               <Button variant="ghost" onClick={onClose}>Cancel</Button>
-              <Button variant="primary" disabled={!files.length} icon={<Icon name="sparkles" size={16} />} onClick={run}>
-                {files.length > 1 ? `Analyze ${files.length} files together` : 'Analyze'}
+              <Button variant="primary" disabled={pasteMode ? !pasteText.trim() : !files.length}
+                icon={<Icon name="sparkles" size={16} />} onClick={run}>
+                {!pasteMode && files.length > 1 ? `Analyze ${files.length} files together` : 'Analyze'}
               </Button>
             </div>
           </React.Fragment>

@@ -251,7 +251,7 @@ FEEDBACK_SYSTEM = (
 
 # Prompt pack version: stamped into results metadata so drift is traceable
 # (the LLM cache keys on full prompt text, so bumps also invalidate caches)
-PROMPT_PACK_VERSION = 25
+PROMPT_PACK_VERSION = 26
 
 LABEL_SYSTEM = (
     "If the group is empty, malformed, or too mixed to share one honest "
@@ -1226,7 +1226,8 @@ class GroupLabeler:
         Find implicit help requests in messages the regex extractor skipped.
         Returns [{'index': int, 'question': str}], empty on failure.
         """
-        return self._questions_from_llm(message_texts, self._system(DETECT_SYSTEM)) or []
+        return self._questions_from_llm(message_texts, self._system(DETECT_SYSTEM),
+                                        few_shot=False) or []
 
     def extract_questions(self, message_texts: List[str],
                           thorough: bool = False) -> Optional[List[Dict]]:
@@ -1240,7 +1241,8 @@ class GroupLabeler:
         messages the fast model skipped that look like questions.
         """
         return self._questions_from_llm(message_texts, self._system(EXTRACT_SYSTEM),
-                                        model=self.model if thorough else None)
+                                        model=self.model if thorough else None,
+                                        few_shot=True)
 
     # Real messages are numbered from a range DISJOINT from the few-shot
     # examples' 0-4: with both numbered from 0 in one turn, a small model
@@ -1249,11 +1251,15 @@ class GroupLabeler:
     MESSAGE_INDEX_BASE = 101
 
     def _questions_from_llm(self, message_texts: List[str], system: str,
-                            model: Optional[str] = None) -> Optional[List[Dict]]:
+                            model: Optional[str] = None,
+                            few_shot: bool = False) -> Optional[List[Dict]]:
         base = self.MESSAGE_INDEX_BASE
         numbered = '\n'.join(f"{base + i}. {text[:600]}"
                               for i, text in enumerate(message_texts))
-        user = (f"{EXTRACT_FEW_SHOT}\n{numbered}" if system.startswith(EXTRACT_SYSTEM[:40])
+        # Explicit flag, never prompt-prefix sniffing: DETECT_SYSTEM shares
+        # its first 40 chars with EXTRACT_SYSTEM, so the old startswith()
+        # check silently fed the extraction few-shot to the DETECT pass
+        user = (f"{EXTRACT_FEW_SHOT}\n{numbered}" if few_shot
                 else f"Messages:\n{numbered}")
         data = self._generate_json(system, user, DETECT_SCHEMA,
                                    max_tokens=800, model=model or self.fast_model)

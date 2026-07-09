@@ -42,12 +42,12 @@ export function Slider({
           {/* rail */}
           <div style={{ position: 'absolute', left: 0, right: 0, height: 2, background: 'var(--gray-30)' }} />
           {/* filled */}
-          <div style={{ position: 'absolute', left: 0, width: `${pct}%`, height: 2, background: disabled ? 'var(--gray-40)' : 'var(--gray-100)' }} />
+          <div style={{ position: 'absolute', left: 0, width: `${pct}%`, height: 2, background: disabled ? 'var(--text-disabled)' : 'var(--text-primary)' }} />
           {/* thumb */}
           <div style={{
             position: 'absolute', left: `${pct}%`, transform: 'translateX(-50%)',
             width: 14, height: 14, borderRadius: '50%',
-            background: disabled ? 'var(--gray-40)' : 'var(--gray-100)',
+            background: disabled ? 'var(--text-disabled)' : 'var(--text-primary)',
             boxShadow: active ? '0 0 0 3px var(--blue-20)' : 'none',
             transition: 'box-shadow var(--duration-fast) var(--ease-productive)',
             pointerEvents: 'none',

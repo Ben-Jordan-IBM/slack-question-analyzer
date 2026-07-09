@@ -33,6 +33,7 @@ def load_fixture(path: str) -> Dict:
     """Load and validate a fixture file (question-level or transcript-level)."""
     with open(path, 'r', encoding='utf-8') as f:
         data = json.load(f)
+    data['_path'] = str(path)
     if data.get('type') == 'transcript':
         if not data.get('transcript') or not isinstance(data.get('expect'), dict):
             raise ValueError('Transcript fixture needs "transcript" (file) and "expect" (dict)')
@@ -135,7 +136,7 @@ def evaluate(analyzer, fixture: Dict) -> Dict:
                                                   key=sorted)],
         'integrity_violations': integrity_violations,
         'taxonomy_version': taxonomy.version,
-        'fixture': str(Path(getattr(fixture, 'path', '') or '')),
+        'fixture': fixture.get('_path', ''),
     }
 
 

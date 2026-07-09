@@ -140,7 +140,7 @@ _STATUS_PHRASE_RE = re.compile(
     r'|\bany updates? on\b|\bstatus of\b', re.IGNORECASE)
 _STATUS_TARGET_RE = re.compile(
     r'https?://\S+'                    # a URL
-    r'|\b[a-z]+\d+(?:[.-][\w-]+)+\b'   # host-like: prod537147.a-vir-s100...
+    r'|\b[a-z]+\d+(?:[.-]\w+)+\b'      # host-like: prod537147.a-vir-s100...
     r'|\b[A-Za-z]{2,6}-\d{3,}\b'       # ticket: MAT-26382, INC-4821
     r'|\b[A-Z]{2,4}\d{6,}\b')          # case id: TS022317449
 _STATUS_FILLER_WORDS = frozenset(
@@ -202,5 +202,9 @@ def rank_replies(replies) -> list:
 # half the pipeline.
 DATE_NUMERIC_YMD = r'\b(\d{4})[-/](\d{1,2})[-/](\d{1,2})\b'
 DATE_NUMERIC_MDY = r'\b(\d{1,2})[-/](\d{1,2})[-/](\d{4})\b'
-DATE_MONTH_NAME = r'\b([A-Za-z]{3,9})\.?\s+(\d{1,2}),?\s+(\d{4})\b'
+# Anchored to REAL month names: any 3-9 letter word would recognize
+# 'Monday 3 2024' as a date that parse_question_date then rejects,
+# breaking the 'every recognized date is also parseable' invariant
+DATE_MONTH_NAME = (r'(?i)\b((?:jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|'
+                   r'nov|dec)[a-z]*)\.?\s+(\d{1,2}),?\s+(\d{4})\b')
 DATE_PATTERNS = (DATE_NUMERIC_YMD, DATE_MONTH_NAME, DATE_NUMERIC_MDY)

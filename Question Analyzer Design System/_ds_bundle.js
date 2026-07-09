@@ -1,4 +1,4 @@
-/* @ds-bundle: {"format":3,"namespace":"QuestionAnalyzerDesignSystem_03a921","components":[{"name":"Button","sourcePath":"components/Button/Button.jsx"},{"name":"Card","sourcePath":"components/Card/Card.jsx"},{"name":"FileDropzone","sourcePath":"components/FileDropzone/FileDropzone.jsx"},{"name":"MetricTile","sourcePath":"components/MetricTile/MetricTile.jsx"},{"name":"QuestionGroup","sourcePath":"components/QuestionGroup/QuestionGroup.jsx"},{"name":"Slider","sourcePath":"components/Slider/Slider.jsx"},{"name":"Tag","sourcePath":"components/Tag/Tag.jsx"}],"sourceHashes":{"components/Button/Button.jsx":"33bd71e0fcdb","components/Card/Card.jsx":"b1e7fb9aff3d","components/FileDropzone/FileDropzone.jsx":"76c7a5fe2c66","components/MetricTile/MetricTile.jsx":"cfdd0ef9f91b","components/QuestionGroup/QuestionGroup.jsx":"3f8ab9213ace","components/Slider/Slider.jsx":"f6c12e0dbb3a","components/Tag/Tag.jsx":"7c89450bc3ad"},"inlinedExternals":[],"unexposedExports":[]} */
+/* @ds-bundle: {"format":3,"namespace":"QuestionAnalyzerDesignSystem_03a921","components":[{"name":"Button","sourcePath":"components/Button/Button.jsx"},{"name":"Card","sourcePath":"components/Card/Card.jsx"},{"name":"FileDropzone","sourcePath":"components/FileDropzone/FileDropzone.jsx"},{"name":"MetricTile","sourcePath":"components/MetricTile/MetricTile.jsx"},{"name":"QuestionGroup","sourcePath":"components/QuestionGroup/QuestionGroup.jsx"},{"name":"Slider","sourcePath":"components/Slider/Slider.jsx"},{"name":"Tag","sourcePath":"components/Tag/Tag.jsx"}],"sourceHashes":{"components/Button/Button.jsx":"6d4a30ce6c15","components/Card/Card.jsx":"b1e7fb9aff3d","components/FileDropzone/FileDropzone.jsx":"671037757f7e","components/MetricTile/MetricTile.jsx":"cfdd0ef9f91b","components/QuestionGroup/QuestionGroup.jsx":"3f8ab9213ace","components/Slider/Slider.jsx":"0cf6a80419ec","components/Tag/Tag.jsx":"7c89450bc3ad"},"inlinedExternals":[],"unexposedExports":[]} */
 
 (() => {
 
@@ -72,24 +72,25 @@ function Button({
     appearance: 'none',
     display: 'inline-flex',
     alignItems: 'center',
-    justifyContent: hasIcon && !fullWidth ? 'space-between' : 'center',
-    gap: 'var(--spacing-05)',
+    // Centered label (and icon beside it): the Carbon asymmetric padding
+    // left-aligned labels and pinned icons to the far edge, which read as
+    // off-center text in short buttons
+    justifyContent: 'center',
+    gap: 'var(--spacing-04)',
     width: fullWidth ? '100%' : 'auto',
     minWidth: variant === 'ghost' ? 0 : '6rem',
     height: heights[size] || heights.lg,
-    // Carbon asymmetric padding: roomy right when icon sits at the edge
-    padding: hasIcon ? '0 var(--spacing-05) 0 var(--spacing-05)' : '0 var(--spacing-07) 0 var(--spacing-05)',
-    paddingRight: hasIcon && !fullWidth ? 'var(--spacing-09)' : undefined,
+    padding: '0 var(--spacing-06)',
     fontFamily: 'var(--font-sans)',
     fontSize: 'var(--type-body-01)',
     fontWeight: 'var(--weight-regular)',
     lineHeight: 1,
     letterSpacing: '0.01em',
-    textAlign: 'left',
+    textAlign: 'center',
     cursor: disabled ? 'not-allowed' : 'pointer',
     border: `1px solid ${p.border}`,
     borderRadius: 'var(--radius-none)',
-    background: disabled ? 'var(--gray-20)' : hover ? p.bgHover : p.bg,
+    background: disabled ? 'var(--layer-active)' : hover ? p.bgHover : p.bg,
     color: disabled ? 'var(--text-disabled)' : hover && p.colorHover ? p.colorHover : p.color,
     transition: 'background var(--duration-base) var(--ease-productive), color var(--duration-base) var(--ease-productive)',
     outline: 'none',
@@ -101,13 +102,7 @@ function Button({
     disabled: disabled,
     onClick: onClick,
     onMouseEnter: () => setHover(true),
-    onMouseLeave: () => setHover(false),
-    onFocus: e => {
-      e.target.style.boxShadow = 'var(--focus-ring-inset)';
-    },
-    onBlur: e => {
-      e.target.style.boxShadow = 'none';
-    }
+    onMouseLeave: () => setHover(false)
   }, rest), /*#__PURE__*/React.createElement("span", null, children), icon ? /*#__PURE__*/React.createElement("span", {
     style: {
       display: 'inline-flex',
@@ -663,7 +658,7 @@ function Slider({
       left: 0,
       width: `${pct}%`,
       height: 2,
-      background: disabled ? 'var(--gray-40)' : 'var(--gray-100)'
+      background: disabled ? 'var(--text-disabled)' : 'var(--text-primary)'
     }
   }), /*#__PURE__*/React.createElement("div", {
     style: {
@@ -673,7 +668,7 @@ function Slider({
       width: 14,
       height: 14,
       borderRadius: '50%',
-      background: disabled ? 'var(--gray-40)' : 'var(--gray-100)',
+      background: disabled ? 'var(--text-disabled)' : 'var(--text-primary)',
       boxShadow: active ? '0 0 0 3px var(--blue-20)' : 'none',
       transition: 'box-shadow var(--duration-fast) var(--ease-productive)',
       pointerEvents: 'none'

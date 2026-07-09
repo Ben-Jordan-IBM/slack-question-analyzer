@@ -70,7 +70,8 @@ macOS/Linux: same flow with `./setup.sh`; see [Quick Start](#quick-start-give-th
 ### Understands questions, not just keywords
 
 - **Smart extraction**: pulls the actual questions out of raw Slack dumps (plain
-  text, Slack JSON exports, or CSV, format auto-detected), strips Slack markup
+  text, Slack JSON exports, CSV, or text copied straight out of the Slack app,
+  format auto-detected), strips Slack markup
   (mentions, links, emoji, code blocks), rewrites each question to stand on its
   own, and even catches implicit help requests that aren't phrased as questions
 - **Ignores the noise**: webinar promos, sales announcements, win-wire posts,
@@ -164,6 +165,13 @@ macOS/Linux: same flow with `./setup.sh`; see [Quick Start](#quick-start-give-th
   saved answer lacks
 - **Analyze several exports together**: drop multiple files into the upload
   window and they merge into one corpus
+- **Paste a Slack thread directly**: copy a whole thread out of Slack (names
+  and timestamps included) and paste it into the upload window. The first
+  message becomes the question and the rest become its replies, so answer
+  detection works on pasted threads too. Pasting dashed transcripts, Slack
+  JSON, or CSV text works the same as uploading a file
+- **Works in a half-width window**: the dashboard reflows for split-screen
+  use on a laptop, with a keyboard-visible focus ring on every control
 - **Week in Review**: weekly volume vs last week, a 6-week trend chart, and
   per-topic movement. Click any topic to jump to its full history
 - **Robust jobs**: analyses queue politely, can be cancelled mid-run, and
@@ -431,8 +439,8 @@ The tool generates a JSON file with the following structure:
     "similarity_threshold": 0.85,
     "model": "nomic-embed-text",
     "provider": "ollama",
-    "app_version": "2.56.0",
-    "prompt_pack": 25,
+    "app_version": "2.59.0",
+    "prompt_pack": 26,
     "routing": {"taxonomy_version": 5, "routed": 12, "needs_review": 1},
     "llm_stats": {"verify_true": 2, "audit_evictions": 1}
   }

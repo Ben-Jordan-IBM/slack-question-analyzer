@@ -14,7 +14,7 @@ import re
 import csv
 import io
 import json
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from typing import List, Dict, Optional
 
 from .textutil import canonical_source, DATE_PATTERNS
@@ -246,6 +246,12 @@ class QuestionExtractor:
                 return messages
 
         messages = self._messages_from_csv(content)
+        if messages is not None:
+            return messages
+
+        # Text copied straight out of the Slack app (author + timestamp
+        # lines) — the paste-a-thread path
+        messages = self._messages_from_slack_copy(content)
         if messages is not None:
             return messages
 
@@ -523,6 +529,163 @@ class QuestionExtractor:
                 messages.append(message)
 
         return messages
+
+    # A line that is ONLY a Slack timestamp: '10:15', '10:15 AM',
+    # 'Yesterday at 10:15 AM', 'Jul 7th at 3:42 PM', 'Monday at 9:00'
+    # No seconds: Slack stamps are HH:MM — allowing :SS made service logs
+    # ('06:47:18') eligible and the detector hijacked pasted logs
+    _COPY_TIME_RE = re.compile(
+        r'^(?P<day>(?:today|yesterday|(?:mon|tues|wednes|thurs|fri|satur|sun)day|'
+        r'jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|june?|july?|'
+        r'aug(?:ust)?|sep(?:t|tember)?|oct(?:ober)?|nov(?:ember)?|'
+        r'dec(?:ember)?)\.?,?\s*(?:\d{1,2}(?:st|nd|rd|th)?,?\s*)?'
+        r'(?:\d{4}\s*)?(?:at\s+)?)?'
+        r'\d{1,2}:\d{2}\s*(?P<ampm>am|pm)?$', re.IGNORECASE)
+    # Interface furniture Slack copies along with thread messages
+    _COPY_FURNITURE_RE = re.compile(
+        r'^(?:\d+\s+repl(?:y|ies)|view thread|repl(?:y|ies)…?|'
+        r'\(edited\)|edited|last reply .*|also send to .*|thread|'
+        r'\d+\s+of\s+\d+)$', re.IGNORECASE)
+    _REPLY_COUNT_RE = re.compile(r'^\d+\s+repl(?:y|ies)$', re.IGNORECASE)
+    _COPY_MONTHS = (r'(?:jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|'
+                    r'june?|july?|aug(?:ust)?|sep(?:t|tember)?|oct(?:ober)?|'
+                    r'nov(?:ember)?|dec(?:ember)?)')
+    _COPY_DATE_RE = re.compile(
+        r'\b' + _COPY_MONTHS + r'\.?\s+(\d{1,2})(?:st|nd|rd|th)?'
+        r'(?:,?\s*(\d{4}))?', re.IGNORECASE)
+    # A standalone day divider between copied messages: 'Today',
+    # 'Monday, June 8th', 'Jul 7th, 2026'
+    _COPY_DAY_DIVIDER_RE = re.compile(
+        r'^(?:(?:mon|tues|wednes|thurs|fri|satur|sun)day,?\s+)?'
+        r'(?:today|yesterday|' + _COPY_MONTHS +
+        r'\.?\s+\d{1,2}(?:st|nd|rd|th)?(?:,?\s*\d{4})?)$', re.IGNORECASE)
+
+    def _copy_date(self, line: str) -> Optional[str]:
+        """Dates as Slack renders them in copied text ('Jun 9th at 2:30 PM',
+        'Monday, June 8th', 'Today at 9:15 AM'): usually month-day with NO
+        year (Slack omits it for current-year dates) or a relative day
+        word. Returns a date string downstream parsers accept."""
+        low = line.lower()
+        if 'today' in low or 'yesterday' in low:
+            day = datetime.now().date()
+            if 'yesterday' in low:
+                day -= timedelta(days=1)
+            return day.strftime('%B %d, %Y')
+        match = self._COPY_DATE_RE.search(line)
+        if match:
+            month = match.group(0).split()[0].rstrip('.').capitalize()
+            day_num = match.group(1)
+            year = match.group(2)
+            if not year:
+                # Slack omits the year only for dates within the last
+                # twelve months — a yearless 'Dec 20th' pasted in January
+                # means LAST December, never a date in the future
+                today = datetime.now().date()
+                guess = today.year
+                try:
+                    candidate = datetime.strptime(
+                        f'{month[:3]} {day_num} {guess}', '%b %d %Y').date()
+                    if candidate > today + timedelta(days=1):
+                        guess -= 1
+                except ValueError:
+                    pass
+                year = str(guess)
+            return f'{month} {day_num}, {year}'
+        found, _ = self._extract_date(line)
+        return found
+
+    def _messages_from_slack_copy(self, content: str) -> Optional[List[Dict]]:
+        """
+        Parse text copied straight out of the Slack app or browser, where
+        each message appears as an AUTHOR line followed by a TIMESTAMP-only
+        line, then the body. Returns None when that shape isn't present
+        (dashed transcripts and prose fall through to the text parser).
+
+        An '<n> replies' divider after the first message marks a THREAD
+        copy: the first message is the ask and everything after it is
+        thread replies (feeding answer detection) — that's the natural
+        thing to select and copy in Slack. Without the marker each message
+        stands alone, exactly like a dashed transcript.
+        """
+        lines = [ln.strip() for ln in content.split('\n')]
+        starts = set()
+        for i in range(1, len(lines)):
+            match = self._COPY_TIME_RE.match(lines[i])
+            if not match:
+                continue
+            prev = lines[i - 1]
+            if not prev or len(prev) > 60 or prev.startswith('>'):
+                continue
+            if self._COPY_TIME_RE.match(prev) \
+                    or self._COPY_FURNITURE_RE.match(prev):
+                continue
+            if re.search(r'[.?!:]$', prev):
+                continue  # a sentence, not an author name
+            if any(ch.isdigit() for ch in prev):
+                continue  # 'v2.58' / 'Step 3' — labels, not names
+            # A bare 24-hour time ('14:32') is also how incident notes and
+            # meeting minutes stamp their sections — it only counts as a
+            # Slack boundary when the line above looks like a real NAME
+            # (multi-word). AM/PM or a day/date prefix is Slack's own
+            # rendering, so those accept single-word display names too.
+            if not match.group('ampm') and not match.group('day') \
+                    and len(prev.split()) < 2:
+                continue
+            starts.add(i - 1)
+        if len(starts) < 2:
+            return None
+
+        parsed = []      # {'date':..., 'lines': [...]}
+        current = None
+        pending_date = None
+        is_thread = False
+        i, n = 0, len(lines)
+        while i < n:
+            if i in starts:
+                if current and current['lines']:
+                    parsed.append(current)
+                found = self._copy_date(lines[i + 1])
+                current = {'date': found or pending_date, 'lines': []}
+                i += 2
+                continue
+            line = lines[i]
+            i += 1
+            if not line:
+                continue
+            if self._COPY_FURNITURE_RE.match(line):
+                # The replies divider right after the ROOT message is the
+                # thread-copy tell
+                if self._REPLY_COUNT_RE.match(line) and not parsed:
+                    is_thread = True
+                continue
+            is_divider = bool(self._COPY_DAY_DIVIDER_RE.match(line))
+            if not is_divider:
+                found, pure = self._extract_date(line)
+                is_divider = bool(found and pure)
+            if is_divider:
+                day = self._copy_date(line)
+                if day:
+                    pending_date = day   # applies to following messages
+                    if current is not None and not current['date']:
+                        current['date'] = day
+                continue
+            if current is not None:
+                current['lines'].append(line)
+        if current and current['lines']:
+            parsed.append(current)
+        if len(parsed) < 2:
+            return None
+
+        if is_thread:
+            root = {'text': '\n'.join(parsed[0]['lines']),
+                    'date': parsed[0]['date']}
+            replies = [' '.join(m['lines'])[:300]
+                       for m in parsed[1:] if m['lines']]
+            if replies:
+                root['replies'] = replies[:5]
+            return [root]
+        return [{'text': '\n'.join(m['lines']), 'date': m['date']}
+                for m in parsed]
 
     # Shared with weekly_stats' parser via textutil: recognition and
     # parsing must accept the same shapes

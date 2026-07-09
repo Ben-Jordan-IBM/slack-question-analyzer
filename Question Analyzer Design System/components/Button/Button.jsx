@@ -33,26 +33,25 @@ export function Button({
     appearance: 'none',
     display: 'inline-flex',
     alignItems: 'center',
-    justifyContent: hasIcon && !fullWidth ? 'space-between' : 'center',
-    gap: 'var(--spacing-05)',
+    // Centered label (and icon beside it): the Carbon asymmetric padding
+    // left-aligned labels and pinned icons to the far edge, which read as
+    // off-center text in short buttons
+    justifyContent: 'center',
+    gap: 'var(--spacing-04)',
     width: fullWidth ? '100%' : 'auto',
     minWidth: variant === 'ghost' ? 0 : '6rem',
     height: heights[size] || heights.lg,
-    // Carbon asymmetric padding: roomy right when icon sits at the edge
-    padding: hasIcon
-      ? '0 var(--spacing-05) 0 var(--spacing-05)'
-      : '0 var(--spacing-07) 0 var(--spacing-05)',
-    paddingRight: hasIcon && !fullWidth ? 'var(--spacing-09)' : undefined,
+    padding: '0 var(--spacing-06)',
     fontFamily: 'var(--font-sans)',
     fontSize: 'var(--type-body-01)',
     fontWeight: 'var(--weight-regular)',
     lineHeight: 1,
     letterSpacing: '0.01em',
-    textAlign: 'left',
+    textAlign: 'center',
     cursor: disabled ? 'not-allowed' : 'pointer',
     border: `1px solid ${p.border}`,
     borderRadius: 'var(--radius-none)',
-    background: disabled ? 'var(--gray-20)' : (hover ? p.bgHover : p.bg),
+    background: disabled ? 'var(--layer-active)' : (hover ? p.bgHover : p.bg),
     color: disabled ? 'var(--text-disabled)' : (hover && p.colorHover ? p.colorHover : p.color),
     transition: 'background var(--duration-base) var(--ease-productive), color var(--duration-base) var(--ease-productive)',
     outline: 'none',
@@ -67,8 +66,6 @@ export function Button({
       onClick={onClick}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
-      onFocus={(e) => { e.target.style.boxShadow = 'var(--focus-ring-inset)'; }}
-      onBlur={(e) => { e.target.style.boxShadow = 'none'; }}
       {...rest}
     >
       <span>{children}</span>

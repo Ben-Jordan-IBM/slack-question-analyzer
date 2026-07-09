@@ -263,7 +263,7 @@ function DashboardView({ onUpload, initialQuery }) {
 
   if (loadingLatest) {
     return (
-      <div style={{ maxWidth: 1000, margin: '0 auto', padding: '60px 40px', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, color: 'var(--text-secondary)', fontSize: 14 }}>
+      <div className="qa-page" style={{ maxWidth: 1000, margin: '0 auto', padding: '60px 40px', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, color: 'var(--text-secondary)', fontSize: 14 }}>
         <Icon name="loader" size={16} /> Loading…
       </div>
     );
@@ -272,7 +272,7 @@ function DashboardView({ onUpload, initialQuery }) {
   if (!d) {
     // Backend has no saved analyses yet: honest empty state, no mock data
     return (
-      <div style={{ maxWidth: 1000, margin: '0 auto', padding: '44px 40px 80px', width: '100%' }}>
+      <div className="qa-page" style={{ maxWidth: 1000, margin: '0 auto', padding: '44px 40px 80px', width: '100%' }}>
         {setupBanner}
         <Reveal>
           <div style={{ textAlign: 'center', padding: '70px 24px', border: '1px dashed var(--border-strong)', background: 'var(--layer-02)' }}>
@@ -295,7 +295,7 @@ function DashboardView({ onUpload, initialQuery }) {
   }
 
   return (
-    <div style={{ maxWidth: 1000, margin: '0 auto', padding: '44px 40px 80px', width: '100%' }}>
+    <div className="qa-page" style={{ maxWidth: 1000, margin: '0 auto', padding: '44px 40px 80px', width: '100%' }}>
       <Reveal>
         <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 24, flexWrap: 'wrap', marginBottom: 30 }}>
           <div>
@@ -319,7 +319,7 @@ function DashboardView({ onUpload, initialQuery }) {
                 </button>
               </React.Fragment>
             ) : null}
-            <div style={search}>
+            <div className="qa-search" style={search}>
               <Icon name="search" size={16} color="var(--text-helper)" />
               <input value={query} onChange={(e) => { setQuery(e.target.value); setVisibleCount(PAGE_SIZE); }} placeholder="Filter questions or topics"
                 style={{ border: 'none', outline: 'none', background: 'transparent', fontFamily: 'var(--font-sans)', fontSize: 14, width: '100%', color: 'var(--text-primary)' }} />
@@ -329,7 +329,7 @@ function DashboardView({ onUpload, initialQuery }) {
       </Reveal>
 
       <Reveal delay={90}>
-        <div style={{ display: 'flex', gap: 56, padding: '22px 24px', background: 'var(--field)', borderLeft: '3px solid var(--blue-60)', marginBottom: d.executiveSummary ? 16 : 32 }}>
+        <div className="qa-stat-row" style={{ display: 'flex', flexWrap: 'wrap', gap: 56, padding: '22px 24px', background: 'var(--field)', borderLeft: '3px solid var(--blue-60)', marginBottom: d.executiveSummary ? 16 : 32 }}>
           {/* The tiles stay all-time (they summarize the whole analysis);
               when a date scope is active, say so instead of looking wrong
               next to the scoped list below */}
@@ -437,7 +437,7 @@ function DashboardView({ onUpload, initialQuery }) {
       ) : null}
 
       <Reveal delay={160}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
+        <div className="qa-controls" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
           <span style={{ fontSize: 13, color: 'var(--text-helper)', fontWeight: 500 }}>Ranked · {groups.length} recurring topic{groups.length === 1 ? '' : 's'} <span title="Questions asked 2+ times that merged into a group. Themes (above) count every question; this counts only the repeats.">ⓘ</span></span>
           <span style={{ display: 'inline-flex', alignItems: 'center', gap: 14 }}>
             <span style={{ display: 'inline-flex' }}>

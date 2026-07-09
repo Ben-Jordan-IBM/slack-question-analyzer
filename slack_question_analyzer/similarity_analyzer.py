@@ -422,7 +422,8 @@ class SimilarityAnalyzer:
             # Funnel stage 1: known categories claim questions directly
             claimed_clusters, claimed = [], set()
             if known_topics:
-                claimed_clusters = self._claim_known_topics(embeddings, known_topics)
+                claimed_clusters = self._claim_known_topics(embeddings,
+                                                        known_topics, buckets)
                 claimed = {i for c in claimed_clusters for i in c}
                 if claimed_clusters:
                     logger.info("Known topics claimed %d question(s) into %d "
@@ -605,7 +606,9 @@ class SimilarityAnalyzer:
             'median': round(float(np.median(pairs)), 3),
         }
 
-    def _claim_known_topics(self, embeddings, known_topics: List[Dict]) -> List[List[int]]:
+    def _claim_known_topics(self, embeddings, known_topics: List[Dict],
+                            buckets: Optional[List[List[Dict]]] = None
+                            ) -> List[List[int]]:
         """
         Funnel stage 1: known categories (the learned topic bank, seeded with
         curated domain topics) claim questions by classification. Two domain
@@ -615,6 +618,14 @@ class SimilarityAnalyzer:
 
         Only categories claiming 2+ questions form groups; single claims are
         released back to normal clustering so they can still pair up there.
+
+        Subject coherence (field finding, 2026-07-08): a bank centroid
+        BLENDED from a past over-merge sits between several unrelated asks
+        and re-claims them as one group in every future analysis — poison
+        that outlives every downstream guard, because claims skip
+        clustering, borderline verify, and rescue entirely. Same test as
+        those guards: a claimed member sharing not one distinctive subject
+        word with the rest of its claim is released back to clustering.
         """
         threshold = float(os.getenv('BANK_MATCH_THRESHOLD', '0.85'))
         norms = np.linalg.norm(embeddings, axis=1, keepdims=True)
@@ -640,7 +651,45 @@ class SimilarityAnalyzer:
             if best is not None:
                 by_topic.setdefault(best, []).append(i)
 
-        return [indices for indices in by_topic.values() if len(indices) >= 2]
+        claimed = [indices for indices in by_topic.values() if len(indices) >= 2]
+        if buckets is None or float(os.getenv('MERGE_SUBJECT_MIN', '0.25')) <= 0:
+            return claimed
+
+        distinct = self._distinct_member_tokens(
+            len(buckets), buckets, common_floor=4,
+            remove_common=len(buckets) >= self._DF_GUARD_MIN_CORPUS)
+
+        def member_subject(i):
+            return distinct[i] or self._subject_tokens([i], buckets)
+
+        # Connected components over pairwise shared-subject edges — not a
+        # member-vs-rest test. A centroid blended from a past over-merge of
+        # TWO topics claims two internally-coherent halves; against the
+        # union of "everyone else" each member finds its partner and
+        # nothing gets released, so the poisoned claim survives whole.
+        # Components split it: each coherent half becomes its own claim,
+        # loners are released back to clustering.
+        coherent = []
+        for indices in claimed:
+            components = []
+            for i in indices:
+                mine = member_subject(i)
+                linked = [c for c in components
+                          if any(self._subject_overlap(mine, member_subject(j)) > 0
+                                 for j in c)]
+                merged_component = [i]
+                for c in linked:
+                    merged_component.extend(c)
+                    components.remove(c)
+                components.append(merged_component)
+            for component in components:
+                if len(component) >= 2:
+                    coherent.append(sorted(component))
+                else:
+                    logger.info("Released a bank-claimed question that "
+                                "shares no subject with its claim group: "
+                                "%.80r", buckets[component[0]][0]['text'])
+        return coherent
 
     def _cluster_buckets(self, n: int, similarity_matrix,
                          exclude=frozenset(),
