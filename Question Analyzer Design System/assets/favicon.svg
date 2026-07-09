@@ -3,8 +3,8 @@
        Dark tile reads crisply on both light and dark browser chrome.
        This file is the SOURCE; index.html embeds it URL-encoded. -->
   <rect width="32" height="32" rx="7" fill="#161616"/>
-  <path d="M8.6 11.4 a4.9 4.9 0 1 1 7.1 4.4 c-1.5.75-2.1 1.45-2.1 2.8" fill="none" stroke="#fff" stroke-width="3.3" stroke-linecap="round"/>
-  <circle cx="13.6" cy="23.6" r="2.1" fill="#fff"/>
+  <path d="M8.6 11.4 a4.9 4.9 0 1 1 7.1 4.4 c-1.5.75-2.1 1.45-2.1 2.8" fill="none" stroke="white" stroke-width="3.3" stroke-linecap="round"/>
+  <circle cx="13.6" cy="23.6" r="2.1" fill="white"/>
   <rect x="20" y="18" width="3.4" height="8" fill="#33b1ff"/>
   <rect x="25" y="12" width="3.4" height="14" fill="#4589ff"/>
 </svg>

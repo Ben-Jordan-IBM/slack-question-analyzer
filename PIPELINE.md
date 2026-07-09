@@ -1,4 +1,4 @@
-# The Question Funnel — Pipeline Spec (v2.61.0, prompt pack 26, taxonomy v5)
+# The Question Funnel — Pipeline Spec (v2.61.2, prompt pack 26, taxonomy v5)
 
 > The stages below describe the CURRENT architecture. The change-by-change
 > history of how it got here (14 measured eval rounds through v2.40, plus
@@ -370,6 +370,21 @@ clustering is under-forming upstream — that's the real problem, not a
 fuller-looking output.
 
 ## Appendix — design history by eval round
+
+> **v2.61.2 (full-audit round):** two-agent audit of v2.60.2-v2.61.1
+> plus a holistic repo sweep. Ship-blocker found and fixed: the week
+> arrows did their date math through local-midnight parsing plus UTC
+> formatting, so every UTC-positive timezone was off by one day — the
+> back arrow double-stepped (Sunday snapped into the previous week) and
+> the forward arrow permanently no-opped; pure UTC math now, verified
+> under Berlin/Kolkata/New York including month and year wraps. The
+> fixed-axis stats frames, chart hit-testing geometry, keyboard path,
+> paste-default states, security posture (CORS, traversal, CSV
+> defusal, React escaping), env-var docs, and doc claims all audited
+> clean. Cleanups: firstWeek regression assertion, the Icon helper
+> assigns attributes instead of string-interpolated innerHTML (defense
+> in depth — every caller passes literals today), and the favicon
+> source file is explicitly linked from index.html.
 
 > **v2.61 (week-chart interaction fix):** field feedback: clicking the
 > trend dots felt broken, for two compounding reasons. (1) EVERY click

@@ -237,6 +237,7 @@ def compute_weekly_stats(results: Dict,
         # data (so the UI knows when "back to latest" applies)
         'week': selected_monday.isoformat(),
         'latestWeek': latest_monday.isoformat(),
+        'firstWeek': monday_of(min(all_dates)).isoformat(),
         'trendWeeks': [m.isoformat() for m in trend_mondays],
         'totalThisWeek': total_this_week,
         'totalLastWeek': total_last_week,

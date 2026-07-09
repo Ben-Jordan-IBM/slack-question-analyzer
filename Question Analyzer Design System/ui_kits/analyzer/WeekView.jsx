@@ -65,7 +65,36 @@ function WeekView({ onInspect }) {
             <div style={{ fontSize: 11, color: 'var(--text-helper)', fontWeight: 500 }}>
               Week in review
             </div>
-            <div style={{ fontSize: 22, fontWeight: 300, letterSpacing: '-.01em', marginTop: 4 }}>{d.weekLabel}</div>
+            {(() => {
+              // Step a calendar week at a time; the arrows stop at the
+              // edges of your data (firstWeek .. latestWeek)
+              // UTC math only: local-midnight parsing + toISOString made
+              // the arrows off-by-one in UTC+ timezones (back double-
+              // stepped, forward no-opped after the backend Monday-snap)
+              const shift = (iso, days) => {
+                const [y, m, d] = iso.split('-').map(Number);
+                return new Date(Date.UTC(y, m - 1, d + days)).toISOString().slice(0, 10);
+              };
+              const atFirst = d.firstWeek && d.week <= d.firstWeek;
+              const atLatest = d.week >= d.latestWeek;
+              const arrow = (dir, disabled, target, label) => (
+                <button onClick={() => !disabled && setSelectedWeek(target)} disabled={disabled}
+                  aria-label={label} title={disabled ? 'No more data in this direction' : label}
+                  style={{ width: 28, height: 28, display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                    border: '1px solid var(--border-subtle)', background: 'var(--layer-02)',
+                    color: disabled ? 'var(--text-disabled)' : 'var(--text-secondary)',
+                    cursor: disabled ? 'default' : 'pointer' }}>
+                  <Icon name={dir} size={15} />
+                </button>
+              );
+              return (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 4 }}>
+                  {arrow('chevron-left', atFirst, shift(d.week, -7), 'Previous week')}
+                  <div style={{ fontSize: 22, fontWeight: 300, letterSpacing: '-.01em', minWidth: 178, textAlign: 'center' }}>{d.weekLabel}</div>
+                  {arrow('chevron-right', atLatest, atLatest ? null : shift(d.week, 7), 'Next week')}
+                </div>
+              );
+            })()}
           </div>
           <button onClick={() => setSelectedWeek(null)} disabled={onLatestWeek}
             title={onLatestWeek ? 'Showing the newest week of your data' : 'Back to the newest week'}

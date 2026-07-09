@@ -65,6 +65,7 @@ def test_compute_weekly_stats_totals_and_trend():
     assert weekly['weekLabel'] == 'Mar 18 – 24, 2024'
     assert weekly['week'] == '2024-03-18'
     assert weekly['latestWeek'] == '2024-03-18'
+    assert weekly['firstWeek'] == '2024-03-04'  # Monday of the oldest date
     assert weekly['totalThisWeek'] == 3   # Mar 20, 19, 18
     assert weekly['totalLastWeek'] == 3   # Mar 17, 16, 15
     assert weekly['deltaPct'] == 0
