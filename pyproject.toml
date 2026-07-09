@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "slack-question-analyzer"
-version = "2.60.2"
+version = "2.60.3"
 description = "AI-powered analysis of Slack questions: extraction, semantic grouping, ranking, and LLM topic labels"
 readme = "README.md"
 requires-python = ">=3.10"
