@@ -64,9 +64,12 @@
   }
 
   // Week-in-Review stats for the latest analysis, or null when unavailable.
-  async function latestWeekly() {
+  // Pass a week (YYYY-MM-DD, any date inside it) to review that calendar
+  // week instead of the newest one.
+  async function latestWeekly(week) {
     try {
-      const data = await getJSON('/api/analyses/latest/weekly');
+      const query = week ? `?week=${encodeURIComponent(week)}` : '';
+      const data = await getJSON(`/api/analyses/latest/weekly${query}`);
       return data.data;
     } catch (err) {
       return null;

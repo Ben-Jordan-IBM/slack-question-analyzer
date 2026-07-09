@@ -55,7 +55,8 @@ function App() {
       <UploadModal open={uploadOpen} onClose={() => setUploadOpen(false)}
         onImported={() => { setUploadOpen(false); setView('dashboard'); setAnalysisVersion((v) => v + 1); }} />
       <HistoryModal open={historyOpen} onClose={() => setHistoryOpen(false)} onLoad={showAnalysis} />
-      <TopicsModal open={topicsOpen} onClose={() => setTopicsOpen(false)} />
+      <TopicsModal open={topicsOpen} onClose={() => setTopicsOpen(false)}
+        onMutated={() => setAnalysisVersion((v) => v + 1)} />
       <SettingsModal open={settingsOpen} onClose={() => setSettingsOpen(false)} />
     </div>
   );

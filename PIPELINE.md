@@ -1,4 +1,4 @@
-# The Question Funnel — Pipeline Spec (v2.59.0, prompt pack 26, taxonomy v5)
+# The Question Funnel — Pipeline Spec (v2.60.2, prompt pack 26, taxonomy v5)
 
 > The stages below describe the CURRENT architecture. The change-by-change
 > history of how it got here (14 measured eval rounds through v2.40, plus
@@ -370,6 +370,41 @@ clustering is under-forming upstream — that's the real problem, not a
 fuller-looking output.
 
 ## Appendix — design history by eval round
+
+> **v2.60.1 (integration-audit fixes):** a two-agent integration audit
+> plus a full-browser smoke of everything working together. Verified
+> clean: week semantics agree across weekly stats, topic history, and
+> the dashboard; every field the UI reads exists in the API responses
+> with the right name and type; the whole analyze-to-export flow runs
+> green end to end; zero console errors across views, modals, and
+> themes. Fixed: renaming a topic in the Learned Topics modal now
+> patches the loaded analysis and remounts the views on close (the
+> dashboard used to show the old name until re-analysis); week
+> navigation keeps the page on screen and dims it while loading instead
+> of tearing down the chart mid-click; chart week-navigation works by
+> touch (index from click coordinates, not hover state) and keyboard
+> (arrow keys + Enter, with an aria label); an empty past week no
+> longer claims to be the 'first week of data'; weekly stats, CSV
+> export, and the analyses list use defensive key access like the
+> markdown exporters (legacy files degrade, never 500); Week view
+> singleton rows drop the 'Avg. similarity —' filler.
+
+> **v2.60 (calendar weeks + week navigation):** Week in Review switched
+> from 7-day windows counted back from the newest message to true
+> CALENDAR weeks (Monday through Sunday) — the same bucketing the
+> topic-history chart already used, so the two views finally agree on
+> what "a week" is. The weekly endpoint takes ?week=YYYY-MM-DD (any date
+> inside the wanted week); compute_weekly_stats(week=...) anchors the
+> trend, rankings, movement, and feedback pulse to the selected week,
+> and returns week/latestWeek/trendWeeks navigation metadata. Chart dots
+> are clickable (AreaChart onPointClick) and jump to that week; the
+> Latest-week chip becomes a working back-to-latest button; a selected
+> week with zero questions renders an inline message instead of the
+> global empty state. Trailing feature requests (dated after the newest
+> question) count toward the latest week only — they no longer leak into
+> past weeks. Also fixed: the header toggle rendered 'Weekin Review'
+> (an inline-flex button strips a flex item's leading space at its line
+> start; NBSP survives).
 
 > **v2.59 (deep-sweep fixes, pack 26):** a second audit pass over the
 > modules earlier audits skipped. Two demonstrated defects: (1) a ReDoS

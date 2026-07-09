@@ -43,12 +43,14 @@ def to_csv(results: Dict) -> str:
             return 'no'
         return ''
 
-    for rank, group in enumerate(results['groups'], 1):
-        for q in group['questions']:
+    for rank, group in enumerate(results.get('groups') or [], 1):
+        for q in group.get('questions') or []:
+            avg = group.get('avg_similarity')
             writer.writerow([
-                rank, group['count'], group['representative_question'],
-                '; '.join(group['keywords']), f"{group['avg_similarity']:.4f}",
-                q['text'], q.get('date', 'Unknown'),
+                rank, group.get('count', ''), group.get('representative_question', ''),
+                '; '.join(group.get('keywords') or []),
+                f"{avg:.4f}" if avg is not None else '',
+                q.get('text', ''), q.get('date', 'Unknown'),
                 'grouped', group.get('theme', ''), q.get('qtype', ''),
                 answered_cell(q),
             ])

@@ -68,7 +68,7 @@ function smoothPath(pts) {
 }
 
 // Polished animated area chart.
-function AreaChart({ data, labels, width = 720, height = 240, accent = 'var(--blue-60)', marker = null }) {
+function AreaChart({ data, labels, width = 720, height = 240, accent = 'var(--blue-60)', marker = null, onPointClick = null }) {
   const padL = 16, padR = 16, padT = 30, padB = 28;
   const plotW = width - padL - padR, plotH = height - padT - padB;
   const max = Math.max(...data) * 1.18, min = Math.min(...data) * 0.6;
@@ -105,20 +105,38 @@ function AreaChart({ data, labels, width = 720, height = 240, accent = 'var(--bl
     return () => clearTimeout(id);
   }, []);
 
-  const onMove = (e) => {
+  const indexFromEvent = (e) => {
     const r = svgRef.current.getBoundingClientRect();
     const mx = ((e.clientX - r.left) / r.width) * width;
-    let idx = Math.round((mx - padL) / (plotW / span));
-    idx = Math.max(0, Math.min(data.length - 1, idx));
-    setHover(idx);
+    const idx = Math.round((mx - padL) / (plotW / span));
+    return Math.max(0, Math.min(data.length - 1, idx));
   };
+  const onMove = (e) => setHover(indexFromEvent(e));
 
   const last = data.length - 1;
   const uid = React.useMemo(() => 'ac' + Math.random().toString(36).slice(2, 8), []);
 
   return (
-    <svg ref={svgRef} viewBox={`0 0 ${width} ${height}`} style={{ width: '100%', height: 'auto', display: 'block' }}
-      onMouseMove={onMove} onMouseLeave={() => setHover(null)}>
+    <svg ref={svgRef} viewBox={`0 0 ${width} ${height}`}
+      style={{ width: '100%', height: 'auto', display: 'block', cursor: onPointClick && hover != null ? 'pointer' : 'default' }}
+      onMouseMove={onMove} onMouseLeave={() => setHover(null)}
+      // Index from the CLICK coordinates, not hover state: a touch tap
+      // fires click without any mousemove, and must still navigate
+      onClick={(e) => { if (onPointClick) onPointClick(indexFromEvent(e)); }}
+      tabIndex={onPointClick ? 0 : undefined}
+      role={onPointClick ? 'group' : undefined}
+      aria-label={onPointClick ? 'Weekly trend chart. Use arrow keys to pick a week, Enter to open it.' : undefined}
+      onKeyDown={(e) => {
+        if (!onPointClick) return;
+        if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+          e.preventDefault();
+          const base = hover != null ? hover : data.length - 1;
+          const next = e.key === 'ArrowLeft' ? Math.max(0, base - 1) : Math.min(data.length - 1, base + 1);
+          setHover(next);
+        } else if (e.key === 'Enter' && hover != null) {
+          onPointClick(hover);
+        }
+      }}>
       <defs>
         <linearGradient id={uid} x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stopColor={accent} stopOpacity="0.20" />

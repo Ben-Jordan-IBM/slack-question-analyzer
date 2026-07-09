@@ -1,9 +1,11 @@
 """
 Week-in-Review statistics computed from analysis results.
 
-Weeks are 7-day buckets anchored to the most recent question date in the
-analysis (not "today"), so historical transcripts still produce a sensible
-"this week vs last week" view.
+Weeks are CALENDAR weeks (Monday through Sunday), the same bucketing the
+topic-history chart uses, anchored to the most recent question date in the
+analysis (not "today") so historical transcripts still produce a sensible
+"this week vs last week" view. A specific week (its Monday) can be
+selected; the default is the latest week with data.
 """
 
 import re
@@ -77,12 +79,20 @@ def _dated_questions(questions: List[Dict]) -> List[Dict]:
     return dated
 
 
-def compute_weekly_stats(results: Dict) -> Optional[Dict]:
+def monday_of(d: date) -> date:
+    """The Monday starting the calendar week that contains d."""
+    return d - timedelta(days=d.weekday())
+
+
+def compute_weekly_stats(results: Dict,
+                         week: Optional[date] = None) -> Optional[Dict]:
     """
     Compute Week-in-Review stats from an analysis result.
 
-    Returns None when no question dates could be parsed (the caller should
-    fall back to an "insufficient data" state).
+    `week` selects the calendar week to review (any date inside it); the
+    default is the newest question's week. Returns None when no question
+    dates could be parsed (the caller should fall back to an
+    "insufficient data" state).
     """
     # Build candidate rows: real groups plus each ungrouped question on its
     # own. Rows carry the same metadata the dashboard shows (theme, summary,
@@ -91,23 +101,26 @@ def compute_weekly_stats(results: Dict) -> Optional[Dict]:
     effective_threshold = (results.get('metadata') or {}).get('effective_threshold')
     rows = []
     for group in results.get('groups', []):
+        # .get() everywhere: a legacy or hand-edited analysis must degrade,
+        # not 500 the weekly endpoint (same contract as the md exporters)
+        avg = group.get('avg_similarity')
         rows.append({
-            'question': group['representative_question'],
+            'question': group.get('representative_question', ''),
             'topic': group.get('topic'),
             'theme': group.get('theme'),
             'summary': group.get('summary'),
             'seen_in': group.get('seen_in_analyses', 0),
-            'ai_confirmed': bool(effective_threshold
-                                 and group['avg_similarity'] < effective_threshold),
+            'ai_confirmed': bool(effective_threshold and avg is not None
+                                 and avg < effective_threshold),
             'needs_review': any(q.get('needs_review')
-                                for q in group['questions']),
+                                for q in group.get('questions', [])),
             'keywords': group.get('keywords', []),
-            'similarity': f"{round(group['avg_similarity'] * 100)}%",
-            'questions': _dated_questions(group['questions']),
+            'similarity': f"{round(avg * 100)}%" if avg is not None else '—',
+            'questions': _dated_questions(group.get('questions', [])),
         })
     for q in results.get('ungrouped_questions', []):
         rows.append({
-            'question': q['text'],
+            'question': q.get('text', ''),
             'topic': None,
             'theme': q.get('theme'),
             'summary': None,
@@ -123,23 +136,23 @@ def compute_weekly_stats(results: Dict) -> Optional[Dict]:
     if not all_dates:
         return None
 
-    anchor = max(all_dates)
+    latest_monday = monday_of(max(all_dates))
+    selected_monday = monday_of(week) if week is not None else latest_monday
 
     def week_index(d: date) -> int:
-        """0 = the 7 days ending at the anchor, 1 = the 7 days before, ..."""
-        return (anchor - d).days // 7
+        """0 = the selected calendar week, 1 = the week before, ..."""
+        return (selected_monday - monday_of(d)).days // 7
 
-    # Overall volume trend, oldest week first
+    # Overall volume trend, oldest week first, ending at the selected week
     week_totals = [0] * TREND_WEEKS
     for d in all_dates:
         idx = week_index(d)
         if 0 <= idx < TREND_WEEKS:
             week_totals[idx] += 1
     trend = list(reversed(week_totals))
-    trend_labels = [
-        _short_date(anchor - timedelta(days=7 * idx + 6))
-        for idx in reversed(range(TREND_WEEKS))
-    ]
+    trend_mondays = [selected_monday - timedelta(days=7 * idx)
+                     for idx in reversed(range(TREND_WEEKS))]
+    trend_labels = [_short_date(m) for m in trend_mondays]
 
     # Per-row counts for this week and last week
     for row in rows:
@@ -177,7 +190,7 @@ def compute_weekly_stats(results: Dict) -> Optional[Dict]:
             'keywords': row['keywords'],
             'movement': movement,
             'questions': [
-                {'text': q['text'], 'date': _short_date(q['_parsed_date']),
+                {'text': q.get('text', ''), 'date': _short_date(q['_parsed_date']),
                  # Tri-state: True/False render the answered/unanswered
                  # chips, None (no thread / unmeasured) renders neither
                  'answered': q.get('answered')}
@@ -202,12 +215,23 @@ def compute_weekly_stats(results: Dict) -> Optional[Dict]:
     # The anchor comes from QUESTION dates only, so a feature request dated
     # after it gets a NEGATIVE week index — it still belongs to "this week"
     # (feedback trailing the last support question is common).
+    # Trailing feedback (dated after the newest QUESTION) belongs to the
+    # latest week; when reviewing a PAST week, only that week's feedback
+    # counts — later feedback must not leak backward
+    trailing_ok = selected_monday == latest_monday
     feedback_this_week = sum(
         1 for q in _dated_questions(results.get('feature_requests', []))
-        if week_index(q['_parsed_date']) <= 0)
+        if (week_index(q['_parsed_date']) <= 0 if trailing_ok
+            else week_index(q['_parsed_date']) == 0))
 
     return {
-        'weekLabel': _week_label(anchor - timedelta(days=6), anchor),
+        'weekLabel': _week_label(selected_monday, selected_monday + timedelta(days=6)),
+        # Navigation metadata: the Monday of each trend point (chart dots
+        # jump to that week), the selected week, and the newest week with
+        # data (so the UI knows when "back to latest" applies)
+        'week': selected_monday.isoformat(),
+        'latestWeek': latest_monday.isoformat(),
+        'trendWeeks': [m.isoformat() for m in trend_mondays],
         'totalThisWeek': total_this_week,
         'totalLastWeek': total_last_week,
         'deltaPct': delta_pct,

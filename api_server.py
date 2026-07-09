@@ -350,7 +350,7 @@ def _list_analyses():
             'analyzed_at': data.get('metadata', {}).get('analyzed_at'),
             'total_questions': data.get('total_questions', 0),
             'total_groups': data.get('total_groups', 0),
-            'top_question': top[0]['representative_question'] if top else None,
+            'top_question': top[0].get('representative_question') if top else None,
         })
     return summaries
 
@@ -753,7 +753,9 @@ def latest_analysis():
 
 @app.route('/api/analyses/latest/weekly', methods=['GET'])
 def latest_weekly():
-    """Week-in-Review stats for the most recent saved analysis."""
+    """Week-in-Review stats for the most recent saved analysis.
+    ?week=YYYY-MM-DD (any date inside the wanted calendar week) reviews
+    that week instead of the newest one — chart dots navigate with it."""
     summaries = _list_analyses()
     if not summaries:
         return jsonify({'success': False, 'error': 'No saved analyses yet'}), 404
@@ -761,7 +763,16 @@ def latest_weekly():
     data = _load_analysis(analysis_id)
     if data is None:
         return jsonify({'success': False, 'error': 'Analysis not found'}), 404
-    weekly = compute_weekly_stats(data)
+    week = None
+    raw_week = request.args.get('week', '')
+    if raw_week:
+        try:
+            from datetime import date
+            week = date.fromisoformat(raw_week)
+        except ValueError:
+            return jsonify({'success': False,
+                            'error': f"Invalid week '{raw_week}' (use YYYY-MM-DD)"}), 400
+    weekly = compute_weekly_stats(data, week=week)
     if weekly is None:
         return jsonify({
             'success': False,

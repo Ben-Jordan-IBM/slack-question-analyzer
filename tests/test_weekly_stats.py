@@ -25,7 +25,8 @@ def test_parse_question_date_rejects_garbage():
 
 
 def make_results():
-    """Anchor date 2024-03-20: 'this week' is Mar 14-20, 'last week' Mar 7-13."""
+    """Newest date 2024-03-20 (a Wednesday): its CALENDAR week is Mon Mar 18
+    to Sun Mar 24; 'last week' is Mar 11-17; Mar 4-10 is two weeks back."""
     return {
         'groups': [
             {
@@ -59,38 +60,60 @@ def make_results():
 def test_compute_weekly_stats_totals_and_trend():
     weekly = compute_weekly_stats(make_results())
 
-    assert weekly['weekLabel'] == 'Mar 14 – 20, 2024'
-    assert weekly['totalThisWeek'] == 6
-    assert weekly['totalLastWeek'] == 2
-    assert weekly['deltaPct'] == 200
+    # Calendar week (Mon-Sun) containing the newest date, not a 7-day
+    # window counted back from it
+    assert weekly['weekLabel'] == 'Mar 18 – 24, 2024'
+    assert weekly['week'] == '2024-03-18'
+    assert weekly['latestWeek'] == '2024-03-18'
+    assert weekly['totalThisWeek'] == 3   # Mar 20, 19, 18
+    assert weekly['totalLastWeek'] == 3   # Mar 17, 16, 15
+    assert weekly['deltaPct'] == 0
     assert len(weekly['trend']) == TREND_WEEKS
     assert len(weekly['trendLabels']) == TREND_WEEKS
-    assert weekly['trend'][-1] == 6  # newest week last
-    assert weekly['trend'][-2] == 2
+    assert len(weekly['trendWeeks']) == TREND_WEEKS
+    assert weekly['trend'][-1] == 3   # newest week last
+    assert weekly['trend'][-2] == 3
+    assert weekly['trend'][-3] == 2   # Mar 10, 9
+    assert weekly['trendWeeks'][-1] == '2024-03-18'
+    assert weekly['trendLabels'][-1] == 'Mar 18'  # labeled by its Monday
+
+
+def test_compute_weekly_stats_for_a_selected_week():
+    """Chart dots navigate: selecting a past week reviews THAT week."""
+    from datetime import date
+    weekly = compute_weekly_stats(make_results(), week=date(2024, 3, 13))
+
+    assert weekly['weekLabel'] == 'Mar 11 – 17, 2024'
+    assert weekly['week'] == '2024-03-11'
+    assert weekly['latestWeek'] == '2024-03-18'  # newest data week unchanged
+    assert weekly['totalThisWeek'] == 3   # Mar 17, 16, 15
+    assert weekly['totalLastWeek'] == 2   # Mar 10, 9
+    questions = {g['question'] for g in weekly['groups']}
+    assert 'What is the deploy schedule?' in questions
+    assert 'Where are the logs?' in questions
+    assert 'How do I reset my password?' not in questions  # no asks that week
 
 
 def test_compute_weekly_stats_ranking_and_movement():
     weekly = compute_weekly_stats(make_results())
     groups = weekly['groups']
 
-    # Deploy group has 3 questions this week and didn't exist last week
-    assert groups[0]['question'] == 'What is the deploy schedule?'
-    assert groups[0]['count'] == 3
+    # Password group: 2 asks this calendar week, none last week -> new
+    assert groups[0]['question'] == 'How do I reset my password?'
+    assert groups[0]['count'] == 2
     assert groups[0]['movement'] == 'new'
-
-    # Password group was rank 1 last week, rank 2 now: movement -1
-    assert groups[1]['question'] == 'How do I reset my password?'
-    assert groups[1]['count'] == 2
-    assert groups[1]['movement'] == -1
     # Only this week's questions are listed
-    assert all(q['date'] in ('Mar 20', 'Mar 19') for q in groups[1]['questions'])
+    assert all(q['date'] in ('Mar 20', 'Mar 19') for q in groups[0]['questions'])
 
-    # Ungrouped question from this week appears as its own row
-    assert groups[2]['question'] == 'Where are the logs?'
-    assert groups[2]['similarity'] == '—'
-    assert weekly['newQuestionTypes'] == 2
+    # Deploy group: rank 1 last week (2 asks), rank 2 now: movement -1
+    assert groups[1]['question'] == 'What is the deploy schedule?'
+    assert groups[1]['count'] == 1
+    assert groups[1]['movement'] == -1
 
-    # Last-week-only question must not appear
+    assert weekly['newQuestionTypes'] == 1
+
+    # Last-week-only questions must not appear
+    assert all(g['question'] != 'Where are the logs?' for g in groups)
     assert all(g['question'] != 'How does SSO work?' for g in groups)
 
 
@@ -225,3 +248,21 @@ def test_week_questions_carry_the_answered_tristate():
     assert by_text['a1?']['answered'] is True
     assert by_text['a2?']['answered'] is False
     assert by_text['a3?']['answered'] is None
+
+
+def test_weekly_stats_tolerates_legacy_group_shapes():
+    """Integration-audit regression: groups missing newer keys (legacy or
+    hand-edited analyses) must degrade like the markdown exporters do,
+    not 500 the weekly endpoint with a KeyError."""
+    results = {
+        'groups': [{
+            # no representative_question, no avg_similarity, no keywords
+            'questions': [{'text': 'How do I reset my password?',
+                           'date': '2024-03-20'}],
+        }],
+        'ungrouped_questions': [{'date': '2024-03-19'}],  # no text
+    }
+    weekly = compute_weekly_stats(results)
+    assert weekly is not None
+    assert weekly['totalThisWeek'] == 2
+    assert weekly['groups'][0]['similarity'] == '—'

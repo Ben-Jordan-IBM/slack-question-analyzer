@@ -173,7 +173,9 @@ macOS/Linux: same flow with `./setup.sh`; see [Quick Start](#quick-start-give-th
 - **Works in a half-width window**: the dashboard reflows for split-screen
   use on a laptop, with a keyboard-visible focus ring on every control
 - **Week in Review**: weekly volume vs last week, a 6-week trend chart, and
-  per-topic movement. Click any topic to jump to its full history
+  per-topic movement, all on real calendar weeks (Monday to Sunday). Click a
+  point on the trend chart to review that week; click any topic to jump to
+  its full history
 - **Robust jobs**: analyses queue politely, can be cancelled mid-run, and
   survive server restarts (interrupted jobs resume automatically)
 - **Automation-friendly**: a full CLI and a REST API alongside the dashboard,
@@ -439,7 +441,7 @@ The tool generates a JSON file with the following structure:
     "similarity_threshold": 0.85,
     "model": "nomic-embed-text",
     "provider": "ollama",
-    "app_version": "2.59.0",
+    "app_version": "2.60.2",
     "prompt_pack": 26,
     "routing": {"taxonomy_version": 5, "routed": 12, "needs_review": 1},
     "llm_stats": {"verify_true": 2, "audit_evictions": 1}
@@ -602,7 +604,7 @@ of a full n×n similarity matrix, and the dashboard paginates long topic lists.
 | `/api/analyses/<id>` | GET | Full results of a specific analysis |
 | `/api/analyses/<id>` | DELETE | Delete a saved analysis |
 | `/api/analyses/<id>/export` | GET | Download as `?format=md`, `faq` (draft FAQ), `csv`, or `json` |
-| `/api/analyses/latest/weekly` | GET | Week-in-Review stats for the most recent analysis |
+| `/api/analyses/latest/weekly` | GET | Week-in-Review stats; `?week=YYYY-MM-DD` reviews that calendar week |
 | `/api/topics` | GET | The learned topic bank (topics accumulated across analyses) |
 | `/api/topics/<topic_id>` | PATCH | Rename a learned topic (`{"topic": "New name"}`) |
 | `/api/topics/<topic_id>` | DELETE | Delete a learned topic from the bank |

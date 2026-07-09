@@ -43,9 +43,10 @@ function UploadModal({ open, onClose, onImported }) {
   // server-side (the backend already accepted multiple files; only this
   // modal was single-file)
   const [files, setFiles] = React.useState([]);
-  // Paste mode: a copied Slack thread (or any transcript text) analyzed
-  // as if it were an uploaded file — the backend accepts raw text
-  const [pasteMode, setPasteMode] = React.useState(false);
+  // Paste mode is the DEFAULT: copying a thread out of Slack is the
+  // lowest-friction path (no export step); file upload sits one click
+  // below. The backend accepts raw text either way.
+  const [pasteMode, setPasteMode] = React.useState(true);
   const [pasteText, setPasteText] = React.useState('');
   const [phase, setPhase] = React.useState('pick'); // pick | running | done | error
   const [progress, setProgress] = React.useState(0);
@@ -60,7 +61,7 @@ function UploadModal({ open, onClose, onImported }) {
     if (!open) {
       runGeneration.current += 1;
       setFiles([]);
-      setPasteMode(false);
+      setPasteMode(true);
       setPasteText('');
       setPhase('pick');
       setProgress(0);
@@ -158,7 +159,7 @@ function UploadModal({ open, onClose, onImported }) {
 
   return (
     <Modal open={open} onClose={onClose} width={520}>
-      <ModalHead title="Add a transcript" sub="Drop an export file or paste a Slack thread. Questions are extracted, grouped, and merged into your dashboard." onClose={onClose} />
+      <ModalHead title="Add a transcript" sub="Paste a Slack thread straight from your channel, or upload an export file. Questions are extracted, grouped, and merged into your dashboard." onClose={onClose} />
       <div style={{ padding: '0 24px 24px' }}>
         {phase === 'pick' ? (
           <React.Fragment>
@@ -184,7 +185,7 @@ function UploadModal({ open, onClose, onImported }) {
             )}
             <button onClick={() => setPasteMode(!pasteMode)}
               style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: 0, marginTop: 10, fontFamily: 'var(--font-sans)', fontSize: 12.5, color: 'var(--link)' }}>
-              {pasteMode ? 'Upload files instead' : 'Or paste a Slack thread / text instead'}
+              {pasteMode ? 'Or upload export files instead' : 'Or paste a Slack thread / text instead'}
             </button>
             {files.length && !pasteMode ? (
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 12 }}>
@@ -371,10 +372,19 @@ function HistoryModal({ open, onClose, onLoad }) {
 }
 
 // ---- Learned topics (the bank): rename, merge, delete ----
-function TopicsModal({ open, onClose }) {
+function TopicsModal({ open, onClose, onMutated }) {
   const { Button } = window.QuestionAnalyzerDesignSystem_03a921;
   const [topics, setTopics] = React.useState(null);
   const [error, setError] = React.useState(null);
+  // Bank edits must reach an already-loaded dashboard: renames patch the
+  // in-memory analysis directly, and any mutation remounts the views on
+  // close (via onMutated) so labels/badges refresh without a re-upload
+  const mutated = React.useRef(false);
+  const close = () => {
+    if (mutated.current && onMutated) onMutated();
+    mutated.current = false;
+    onClose();
+  };
 
   const load = React.useCallback(() => {
     window.QA_API.listTopics().then(setTopics).catch((err) => setError(err.message));
@@ -395,6 +405,7 @@ function TopicsModal({ open, onClose }) {
   const act = async (fn) => {
     try {
       await fn();
+      mutated.current = true;
       load();
       // An open history panel must reflect the change too (e.g. the
       // publish marker appearing/disappearing right after the toggle)
@@ -403,7 +414,17 @@ function TopicsModal({ open, onClose }) {
   };
   const rename = (t) => {
     const name = window.prompt('Rename this topic:', t.topic);
-    if (name && name.trim() && name.trim() !== t.topic) act(() => window.QA_API.renameTopic(t.id, name.trim()));
+    if (!name || !name.trim() || name.trim() === t.topic) return;
+    const clean = name.trim();
+    act(async () => {
+      await window.QA_API.renameTopic(t.id, clean);
+      // Patch the loaded analysis in place (same as the dashboard's
+      // inline pencil) so the open views show the new name immediately
+      const results = window.ANALYSIS_RESULTS;
+      if (results && results.groups) {
+        results.groups.forEach((g) => { if (g.topic_id === t.id) g.topic = clean; });
+      }
+    });
   };
   const remove = (t) => {
     if (window.confirm(`Delete the topic "${t.topic}" from the learned bank?`)) act(() => window.QA_API.deleteTopic(t.id));
@@ -471,8 +492,8 @@ function TopicsModal({ open, onClose }) {
   };
 
   return (
-    <Modal open={open} onClose={onClose} width={620}>
-      <ModalHead title="Learned topics" sub="Everything the analyzer knows from seeds and past analyses. Rename bad names, merge duplicates, delete junk — changes apply to all future analyses." onClose={onClose} />
+    <Modal open={open} onClose={close} width={620}>
+      <ModalHead title="Learned topics" sub="Everything the analyzer knows from seeds and past analyses. Rename bad names, merge duplicates, delete junk — changes apply to all future analyses." onClose={close} />
       <div style={{ padding: '0 24px 24px' }}>
         {error ? <div style={{ fontSize: 13, color: 'var(--red-60)', padding: '12px 16px', background: 'var(--field)', borderLeft: '3px solid var(--red-60)', marginBottom: 14 }}>{error}</div> : null}
         {topics === null && !error ? (
@@ -577,7 +598,7 @@ function TopicsModal({ open, onClose }) {
           </div>
         ) : null}
         <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 16 }}>
-          <Button variant="ghost" onClick={onClose}>Close</Button>
+          <Button variant="ghost" onClick={close}>Close</Button>
         </div>
       </div>
     </Modal>

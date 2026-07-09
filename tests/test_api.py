@@ -470,9 +470,23 @@ def test_weekly_stats_endpoint(client, fake_engine):
     latest = client.get('/api/analyses/latest/weekly')
     assert latest.status_code == 200
     weekly = latest.get_json()['data']
-    # All three sample questions fall inside the week ending 2024-01-09
-    assert weekly['totalThisWeek'] == 3
-    assert weekly['groups'][0]['count'] == 2
+    # CALENDAR weeks: Jan 8 (Mon) and Jan 9 land in the week of Jan 8-14;
+    # Jan 5 (Fri) belongs to the previous week (Jan 1-7)
+    assert weekly['week'] == '2024-01-08'
+    assert weekly['weekLabel'] == 'Jan 8 – 14, 2024'
+    assert weekly['totalThisWeek'] == 2
+    assert weekly['totalLastWeek'] == 1
+    assert weekly['trendWeeks'][-1] == '2024-01-08'
+
+    # ?week= reviews a past calendar week (any date inside it)
+    past = client.get('/api/analyses/latest/weekly?week=2024-01-03')
+    assert past.status_code == 200
+    past_weekly = past.get_json()['data']
+    assert past_weekly['week'] == '2024-01-01'
+    assert past_weekly['totalThisWeek'] == 1
+    assert past_weekly['latestWeek'] == '2024-01-08'
+
+    assert client.get('/api/analyses/latest/weekly?week=garbage').status_code == 400
 
 
 def test_weekly_stats_404s(client):

@@ -2,7 +2,9 @@
 // Upload transcript, and the account / sign-in avatar.
 function AppHeader({ view, setView, onUpload, onHistory, onTopics, onSettings, version, theme, onToggleTheme }) {
   const segs = [{ key: 'dashboard', label: 'Dashboard' },
-    { key: 'week', label: <React.Fragment>Week<span className="qa-btn-label"> in Review</span></React.Fragment> }];
+    // NBSP, not a space: the segment button is inline-flex, so the span is
+    // a flex item and a plain leading space is stripped at its line start
+    { key: 'week', label: <React.Fragment>Week<span className="qa-btn-label">{'\u00A0in Review'}</span></React.Fragment> }];
   const activeIdx = segs.findIndex((s) => s.key === view);
 
   const iconBtn = {
