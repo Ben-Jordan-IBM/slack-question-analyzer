@@ -431,8 +431,8 @@ The tool generates a JSON file with the following structure:
     "similarity_threshold": 0.85,
     "model": "nomic-embed-text",
     "provider": "ollama",
-    "app_version": "2.55.0",
-    "prompt_pack": 24,
+    "app_version": "2.56.0",
+    "prompt_pack": 25,
     "routing": {"taxonomy_version": 5, "routed": 12, "needs_review": 1},
     "llm_stats": {"verify_true": 2, "audit_evictions": 1}
   }

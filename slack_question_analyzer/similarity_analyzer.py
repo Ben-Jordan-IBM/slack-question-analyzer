@@ -673,20 +673,7 @@ class SimilarityAnalyzer:
         gate_on = subject_min > 0 and buckets is not None
         member_tokens = None
         if gate_on:
-            member_tokens = [self._subject_tokens([b], buckets)
-                             for b in range(n)]
-            # Corpus-common tokens ARE the template ('mft', 'support', the
-            # product name) — overlap on them is what inflates the cosine
-            # in the first place, so they carry zero subject evidence for
-            # the gate. Same principle as the keyword scorer: corpus-wide
-            # words score nothing.
-            df: Dict[str, int] = {}
-            for toks in member_tokens:
-                for t in toks:
-                    df[t] = df.get(t, 0) + 1
-            common_bar = max(2, round(0.25 * n))
-            common = {t for t, c in df.items() if c >= common_bar}
-            member_tokens = [toks - common for toks in member_tokens]
+            member_tokens = self._distinct_member_tokens(n, buckets)
 
         sim = np.asarray(similarity_matrix)
         clusters = []
@@ -768,6 +755,19 @@ class SimilarityAnalyzer:
         if not multi:
             return clusters, rescued
 
+        # Subject guard (same field finding as the borderline-merge guard):
+        # rescue exists for REWORDINGS of a group's topic stranded under the
+        # bar, and rewordings share at least one distinctive subject word.
+        # A singleton sharing NONE with its nearest group is template-
+        # similar, not under-grouped — the verifier doesn't get to approve
+        # those. MERGE_SUBJECT_MIN=0 disables.
+        guard_on = float(os.getenv('MERGE_SUBJECT_MIN', '0.25')) > 0
+        distinct = None
+        if guard_on:
+            distinct = self._distinct_member_tokens(
+                len(buckets), buckets, common_floor=4,
+                remove_common=len(buckets) >= self._DF_GUARD_MIN_CORPUS)
+
         checked = 0
         absorbed = set()
         for si, cluster in enumerate(clusters):
@@ -795,6 +795,18 @@ class SimilarityAnalyzer:
                     and not self._shared_subject(cluster, clusters[best_group],
                                                  buckets):
                 continue  # different question kind AND different subject
+            if distinct is not None:
+                s_subject = distinct[s]
+                group_subject = set().union(
+                    *(distinct[j] for j in clusters[best_group]))
+                if not s_subject or not group_subject:
+                    # Empty after df removal = no distinctive evidence
+                    # either way — compare raw subject tokens instead
+                    s_subject = self._subject_tokens(cluster, buckets)
+                    group_subject = self._subject_tokens(
+                        clusters[best_group], buckets)
+                if self._subject_overlap(s_subject, group_subject) == 0:
+                    continue  # template-similar, not an under-grouped reword
             checked += 1
             group_texts = [buckets[j][0]['text'] for j in clusters[best_group][:3]]
             if verifier([buckets[s][0]['text']], group_texts) is True:
@@ -949,6 +961,36 @@ class SimilarityAnalyzer:
                         tokens.add(stem(t))
         return tokens
 
+    # Below this many buckets, document frequency cannot separate template
+    # words from the genuine subject (three questions about threads make
+    # 'thread' corpus-common), so the HARD guards skip df removal there.
+    # The clustering gate keeps removal at any size — deferral is harmless.
+    _DF_GUARD_MIN_CORPUS = 8
+
+    def _distinct_member_tokens(self, n: int, buckets: List[List[Dict]],
+                                remove_common: bool = True,
+                                common_floor: int = 2) -> List[set]:
+        """Per-bucket subject tokens with corpus-common tokens removed.
+        Corpus-common tokens ARE the template ('mft', 'support', the
+        product name) — overlap on them is what inflates the cosine in the
+        first place, so they carry zero subject evidence. Same principle
+        as the keyword scorer: corpus-wide words score nothing.
+
+        `common_floor` is the minimum document frequency that counts as
+        common: the clustering gate keeps 2 (deferral is harmless), the
+        HARD guards use 4 (a word in 2 of 10 buckets is a topic, not a
+        template, and stripping it would veto genuine rewordings)."""
+        member_tokens = [self._subject_tokens([b], buckets) for b in range(n)]
+        if not remove_common:
+            return member_tokens
+        df: Dict[str, int] = {}
+        for toks in member_tokens:
+            for t in toks:
+                df[t] = df.get(t, 0) + 1
+        common_bar = max(common_floor, round(0.25 * n))
+        common = {t for t, c in df.items() if c >= common_bar}
+        return [toks - common for toks in member_tokens]
+
     @staticmethod
     def _subject_overlap(a: set, b: set) -> float:
         """Prefix-tolerant containment of the smaller token set in the
@@ -1019,6 +1061,26 @@ class SimilarityAnalyzer:
         tokens = ([self._subject_tokens(c, buckets) for c in clusters]
                   if lexical_on else None)
 
+        # Subject guard for verifier-approved merges (field finding, the
+        # 2026-07-07 run: a supported-token check, a vault-integration ask,
+        # and an access error merged into one 3x group at avg 0.77 — the
+        # verifier is fooled by the same product-name scaffolding that
+        # inflates the cosine). A cosine pair sharing NOT ONE distinctive
+        # subject word keeps its verifier hearing but loses the margin
+        # discount: the merged average must clear the FULL bar. Genuine
+        # rewordings share at least the head noun ('thread', 'timeout');
+        # template merges share only corpus-common scaffolding and need
+        # the discount — that's what dies here. MERGE_SUBJECT_MIN=0
+        # disables (the same knob as the clustering subject gate).
+        guard_on = float(os.getenv('MERGE_SUBJECT_MIN', '0.25')) > 0
+        distinct = None
+        if guard_on:
+            per_bucket = self._distinct_member_tokens(
+                len(buckets), buckets, common_floor=4,
+                remove_common=len(buckets) >= self._DF_GUARD_MIN_CORPUS)
+            distinct = [set().union(*(per_bucket[i] for i in c))
+                        if c else set() for c in clusters]
+
         cosine_candidates = []
         lexical_candidates = []
         for a in range(len(clusters)):
@@ -1065,6 +1127,16 @@ class SimilarityAnalyzer:
                          for ix, x in enumerate(combined) for y in combined[ix + 1:]]
             floor = self.effective_threshold - (margin if kind == 'cosine'
                                                 else lexical_slack)
+            if kind == 'cosine' and distinct is not None:
+                da, db = distinct[ra], distinct[rb]
+                if not da or not db:
+                    # df removal can empty a side — that's absence of
+                    # evidence, not evidence of a template merge;
+                    # compare raw subject tokens instead
+                    da = self._subject_tokens(clusters[ra], buckets)
+                    db = self._subject_tokens(clusters[rb], buckets)
+                if self._subject_overlap(da, db) == 0:
+                    floor = self.effective_threshold  # no discount, full bar
             if float(np.mean(pair_sims)) < floor:
                 continue
 
@@ -1089,6 +1161,8 @@ class SimilarityAnalyzer:
             if verifier(texts_a, texts_b) is True:
                 parent[rb] = ra
                 clusters[ra] = combined
+                if distinct is not None:
+                    distinct[ra] = distinct[ra] | distinct[rb]
                 merged_count += 1
 
         if merged_count:

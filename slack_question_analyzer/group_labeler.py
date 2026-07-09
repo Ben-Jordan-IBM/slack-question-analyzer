@@ -210,6 +210,11 @@ CONSOLIDATE_SYSTEM = (
     "the answer to the second. Short deictic follow-ups ('is that possible "
     "here?', 'so it just needs configuring?', 'all in one place?') that "
     "cannot stand alone are the same ask: {\"keep\": [1]}\n"
+    "Example: 1. What alternative solutions exist for integrating with an "
+    "external vault? 2. Can agent-based integration be leveraged here? The "
+    "second proposes ONE CANDIDATE inside the first's request for "
+    "alternatives — the first's answer (the list of options, including "
+    "whether that candidate works) resolves both: {\"keep\": [1]}\n"
     "Example: 1. Can we trigger transfers via REST? 2. Is there a way to "
     "bulk-disable actions? Different asks: {\"keep\": [1, 2]}\n\n"
     "Respond with JSON only: {\"keep\": [<numbers>]}"
@@ -246,7 +251,7 @@ FEEDBACK_SYSTEM = (
 
 # Prompt pack version: stamped into results metadata so drift is traceable
 # (the LLM cache keys on full prompt text, so bumps also invalidate caches)
-PROMPT_PACK_VERSION = 24
+PROMPT_PACK_VERSION = 25
 
 LABEL_SYSTEM = (
     "If the group is empty, malformed, or too mixed to share one honest "
@@ -339,7 +344,12 @@ VERIFY_SYSTEM = (
     "Example: Group A asks how to merge the content of two files; Group B asks "
     "whether a control file can trigger a transfer. Both mention files, but "
     "merging contents and trigger-on-control-file are different operations "
-    "with different doc pages: {\"same_topic\": false}\n\n"
+    "with different doc pages: {\"same_topic\": false}\n"
+    "Example: Group A asks whether a specific credential type is supported; "
+    "Group B asks for alternative ways to integrate with an external secrets "
+    "vault. Both mention the same cloud deployment, but a supported-feature "
+    "check and an integration workaround need different answers: "
+    "{\"same_topic\": false}\n\n"
     "Respond with JSON only."
 )
 

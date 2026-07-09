@@ -1151,3 +1151,89 @@ def test_preflight_probes_the_endpoint_and_raises_when_down(monkeypatch):
 
     monkeypatch.setenv('EMBEDDING_PREFLIGHT', 'off')
     analyzer.preflight()  # switched off: no probe, no raise
+
+
+def _template_corpus(a_text, b_text, n_fillers=10):
+    """Buckets where 'mft'/'saas' are corpus-common template words and the
+    two texts under test share nothing else — the 2026-07-07 field shape."""
+    texts = [a_text, b_text] + [
+        f'How to configure the mft saas widget{i} feature?'
+        for i in range(n_fillers)]
+    return [[question(t)] for t in texts]
+
+
+def test_verifier_yes_cannot_template_merge_disjoint_subjects(monkeypatch):
+    """Field regression (2026-07-07 run): a supported-token check and a
+    vault-integration ask merged at avg 0.77 on product-name scaffolding,
+    with the verifier approving. A cosine pair sharing NOT ONE distinctive
+    subject word loses the margin discount — the merge must clear the full
+    bar, which template merges by definition cannot."""
+    analyzer = make_analyzer(monkeypatch, threshold='0.85')
+    monkeypatch.setenv('LLM_VERIFY_MARGIN', '0.05')
+    analyzer.effective_threshold = 0.85
+
+    buckets = _template_corpus(
+        'Does wm mft saas support container-level azure tokens?',
+        'Are there alternative solutions for integrating mft saas with hashicorp vault?')
+    n = len(buckets)
+    sim = np.full((n, n), 0.1)
+    np.fill_diagonal(sim, 1.0)
+    sim[0][1] = sim[1][0] = 0.83  # inside the margin band, below the bar
+
+    clusters = [[i] for i in range(n)]
+    merged = analyzer._merge_borderline_clusters(
+        clusters, sim, buckets, verifier=lambda a, b: True)
+    homes = [c for c in merged if 0 in c or 1 in c]
+    assert len(homes) == 2  # still two separate groups
+
+    # Control: same numbers, but the pair shares a distinctive subject
+    # word ('azure') — the discount stays and the verifier's yes merges
+    buckets = _template_corpus(
+        'Does wm mft saas support container-level azure tokens?',
+        'Why does azure token auth fail for mft saas containers?')
+    clusters = [[i] for i in range(n)]
+    merged = analyzer._merge_borderline_clusters(
+        clusters, sim, buckets, verifier=lambda a, b: True)
+    homes = [c for c in merged if 0 in c or 1 in c]
+    assert len(homes) == 1  # merged into one group
+
+
+def test_rescue_requires_a_shared_distinctive_subject_word(monkeypatch):
+    """Rescue exists for rewordings, and rewordings share at least one
+    distinctive subject word — a singleton sharing only template words
+    with its nearest group never reaches the verifier."""
+    analyzer = make_analyzer(monkeypatch, threshold='0.85')
+    analyzer.effective_threshold = 0.85
+    monkeypatch.setenv('LLM_RESCUE_MARGIN', '0.1')
+
+    buckets = _template_corpus(
+        'Does wm mft saas support container-level azure tokens?',
+        'Why is azure container token auth failing on mft saas?') \
+        + [[question('Are there alternative solutions for integrating '
+                     'mft saas with hashicorp vault?')]]
+    n = len(buckets)
+    vault = n - 1
+    sim = np.full((n, n), 0.1)
+    np.fill_diagonal(sim, 1.0)
+    sim[0][1] = sim[1][0] = 0.9          # the established pair
+    sim[0][vault] = sim[vault][0] = 0.78  # inside the rescue window...
+    sim[1][vault] = sim[vault][1] = 0.78  # ...on average too
+
+    asked = []
+
+    def verifier(a, b):
+        asked.append((a, b))
+        return True
+
+    clusters = [[0, 1]] + [[i] for i in range(2, n)]
+    result, rescued = analyzer._rescue_singletons(clusters, sim, buckets, verifier)
+    assert rescued == set()
+    assert asked == []  # guard fired before spending a verifier call
+
+    # Control: the singleton is a genuine reworded 4th occurrence sharing
+    # 'azure'/'token' — the guard passes and the verifier's yes rescues it
+    buckets[vault] = [question('Any way around the azure token '
+                               'authorization failure in mft saas?')]
+    clusters = [[0, 1]] + [[i] for i in range(2, n)]
+    result, rescued = analyzer._rescue_singletons(clusters, sim, buckets, verifier)
+    assert rescued == {vault}

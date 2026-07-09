@@ -1,4 +1,4 @@
-# The Question Funnel — Pipeline Spec (v2.55.0, prompt pack 24, taxonomy v5)
+# The Question Funnel — Pipeline Spec (v2.56.0, prompt pack 25, taxonomy v5)
 
 > The stages below describe the CURRENT architecture. The change-by-change
 > history of how it got here (14 measured eval rounds through v2.40, plus
@@ -91,6 +91,13 @@ can surface as a coherent cluster. In order:
    within `LLM_VERIFY_MARGIN=0.03` of the bar are judged by the quality
    model (prompt: VERIFY; conservative, doubt → false; numeric guard: the
    merged cluster's average must stay ≥ bar − margin; cap `LLM_VERIFY_MAX=10`).
+   **Subject guard** (v2.56): a cosine pair sharing NOT ONE distinctive
+   subject word (df-aware, floor 4; raw tokens under 8 buckets) keeps its
+   verifier hearing but loses the margin discount — the merged average
+   must clear the FULL bar. The verifier is fooled by the same
+   product-name scaffolding that inflates the cosine (field finding:
+   a supported-token check, a vault-integration ask, and an access error
+   merged at avg 0.77); genuine rewordings share at least the head noun.
    A SECOND candidate source widens what the verifier gets to see: cluster
    pairs sharing most of their distinctive content words
    (`LLM_VERIFY_LEXICAL_MIN=0.7`, the SAME prefix-tolerant overlap metric
@@ -108,7 +115,10 @@ can surface as a coherent cluster. In order:
    the singleton during clustering is itself evidence it differs, and
    unbounded rescue into big groups is how mega-groups grew. Every rescue
    stays undoable by the audit (judges tied → undo). Doubt/failure → stays
-   a singleton.
+   a singleton. **Subject guard** (v2.56, same finding as the borderline
+   guard): rescue exists for REWORDINGS, and rewordings share at least one
+   distinctive subject word — a singleton sharing none with its nearest
+   group never reaches the verifier.
 6. **Group audit (final QC, two-judge + tiebreak)**: every formed group is
    checked by the quality model (prompt: AUDIT; doubt → keep). Eviction is
    destructive, so the auditor only nominates: the verifier must confirm
@@ -353,6 +363,25 @@ clustering is under-forming upstream — that's the real problem, not a
 fuller-looking output.
 
 ## Appendix — design history by eval round
+
+> **v2.56 (over-merge fix, pack 25):** the first post-migration field run
+> re-exposed template merging one layer up: a supported-token check, a
+> vault-integration ask, and an access error merged into one 3x group at
+> avg 0.77 — below the bar, approved by the VERIFIER via the borderline
+> margin discount. The clustering subject gate (v2.49) defers template
+> joins to the verifier, but the verifier reads the same product-name
+> scaffolding the embeddings do. Deterministic fix, both LLM merge paths:
+> a cosine borderline pair sharing NOT ONE distinctive subject word
+> (df-aware with floor 4, raw tokens under 8 buckets — three questions
+> about threads must not make 'thread' corpus-common) loses the margin
+> discount and must clear the full bar; a rescue candidate sharing none
+> with its nearest group is skipped before spending a verifier call.
+> Zero-shared-token is the right test, not an overlap ratio: genuine
+> rewordings can share exactly one head noun ('thread'). Prompts (pack
+> 25): VERIFY gains the supported-feature-vs-integration-workaround FALSE
+> example; CONSOLIDATE gains the candidate-inside-a-request-for-
+> alternatives example ('Can HashiCorp Agents be leveraged here?' is a
+> facet of the vault question, not a second ask).
 
 > **v2.55 (repo upgrade round):** two-agent documentation-vs-code audit of
 > the whole repo. Code: `taxonomy.json` and `seed_topics.json` now resolve
