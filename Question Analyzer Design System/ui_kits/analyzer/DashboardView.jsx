@@ -1,6 +1,6 @@
 // Overall dashboard — common questions, ranked by occurrences (all-time).
 // Entirely backend-driven: real saved analyses or an empty state, never mocks.
-function DashboardView({ onUpload, initialQuery }) {
+function DashboardView({ onUpload, initialQuery, onTopics }) {
   // Use real analysis results when available; on first load, pull the most
   // recent saved analysis from the backend so results survive page refreshes.
   const [analysisResults, setAnalysisResults] = React.useState(window.ANALYSIS_RESULTS || null);
@@ -115,6 +115,8 @@ function DashboardView({ onUpload, initialQuery }) {
   const [showUnique, setShowUnique] = React.useState(true);
   const [showUnanswered, setShowUnanswered] = React.useState(true);
   const [showDropped, setShowDropped] = React.useState(false);
+  const [showFeedback, setShowFeedback] = React.useState(true);
+  const [notesOpen, setNotesOpen] = React.useState(false);
   const [openDropped, setOpenDropped] = React.useState(null); // expanded source message
 
   const exportBtn = {
@@ -281,12 +283,13 @@ function DashboardView({ onUpload, initialQuery }) {
             </span>
             <h1 style={{ fontSize: 26, fontWeight: 300, letterSpacing: '-.02em', margin: '0 0 8px' }}>No analyses yet</h1>
             <div style={{ fontSize: 14, color: 'var(--text-secondary)', maxWidth: 440, margin: '0 auto 24px', lineHeight: 1.55 }}>
-              Upload a Slack transcript (TXT, JSON, CSV, or a zipped export) and the questions
-              will be extracted, grouped by topic, and ranked right here.
+              Paste a Slack thread straight from your channel, or upload an export
+              (TXT, JSON, CSV, or a zipped export). Questions are extracted,
+              grouped by topic, and ranked right here.
             </div>
             <button onClick={onUpload}
               style={{ height: 40, padding: '0 22px', display: 'inline-flex', alignItems: 'center', gap: 8, background: 'var(--blue-60)', color: '#fff', border: 'none', cursor: 'pointer', fontFamily: 'var(--font-sans)', fontSize: 14 }}>
-              <Icon name="upload" size={16} /> Upload transcript
+              <Icon name="plus" size={16} /> Add a transcript
             </button>
           </div>
         </Reveal>
@@ -302,7 +305,6 @@ function DashboardView({ onUpload, initialQuery }) {
             <h1 style={{ fontSize: 32, fontWeight: 300, letterSpacing: '-.02em', margin: '0 0 6px' }}>Most-asked questions</h1>
             <div style={{ fontSize: 14, color: 'var(--text-secondary)' }}>
               {rangeDays ? `Last ${rangeDays} days of your monitored Slack channels` : 'All-time across your monitored Slack channels'} · ranked by {sortMode === 'count' ? 'occurrences' : sortMode === 'trending' ? 'recent activity' : 'newest first'}
-              {d.groupingBar ? <span title="Questions group together only above this similarity (auto-raised above your corpus's noise level); pairs below it require AI confirmation" style={{ marginLeft: 8, fontSize: 11.5, fontFamily: 'var(--font-mono)', color: 'var(--text-helper)' }}>grouping bar {Math.round(d.groupingBar * 100)}%</span> : null}
             </div>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
@@ -343,9 +345,17 @@ function DashboardView({ onUpload, initialQuery }) {
             </div>
           )}
           {d.featureRequests && d.featureRequests.length ? stat('Product feedback', d.featureRequests.length, 'var(--purple-60, #8a3ffc)') : null}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 6, justifyContent: 'center', marginLeft: 'auto', textAlign: 'right' }}>
+          <div className="qa-topstat" style={{ display: 'flex', flexDirection: 'column', gap: 6, justifyContent: 'center', marginLeft: 'auto', textAlign: 'right' }}>
             <span style={{ fontSize: 11, color: 'var(--text-helper)', fontWeight: 500 }}>{d.topTheme ? 'Top theme' : 'Top recurring topic'}</span>
-            <span style={{ fontSize: 18, fontWeight: 600, color: 'var(--link)' }}>{d.topTheme || d.topTopic}</span>
+            {d.topTheme ? (
+              <button onClick={() => { setThemeFilter(themeFilter === d.topTheme ? null : d.topTheme); setVisibleCount(PAGE_SIZE); }}
+                title={themeFilter === d.topTheme ? 'Click to clear this filter' : 'Click to filter the list to this theme'}
+                style={{ fontSize: 18, fontWeight: 600, color: 'var(--link)', background: 'transparent', border: 'none', padding: 0, cursor: 'pointer', fontFamily: 'var(--font-sans)', textAlign: 'inherit', textDecoration: themeFilter === d.topTheme ? 'underline' : 'none' }}>
+                {d.topTheme}
+              </button>
+            ) : (
+              <span style={{ fontSize: 18, fontWeight: 600, color: 'var(--text-primary)' }}>{d.topTopic}</span>
+            )}
           </div>
         </div>
       </Reveal>
@@ -357,12 +367,12 @@ function DashboardView({ onUpload, initialQuery }) {
             {d.themes.map((t, i) => {
               const active = themeFilter === t.name;
               return (
-                <button key={i}
+                <button key={i} className="qa-chip"
                   title={active ? 'Click to clear this filter'
                     : `Show only the ${t.count} question${t.count === 1 ? '' : 's'} under this theme`}
                   onClick={() => { setThemeFilter(active ? null : t.name); setVisibleCount(PAGE_SIZE); }}
                   style={{ fontFamily: 'var(--font-mono)', fontSize: 12.5, cursor: 'pointer',
-                    border: active ? '1px solid var(--blue-60)' : '1px solid transparent',
+                    border: active ? '1px solid var(--blue-60)' : '1px solid var(--border-subtle)',
                     color: active ? 'var(--link)' : 'var(--text-secondary)',
                     background: active ? 'var(--chip-active-bg)' : 'var(--field)', padding: '6px 12px' }}>
                   {t.name} <b style={{ color: 'var(--link)' }}>{t.count}</b>
@@ -382,38 +392,44 @@ function DashboardView({ onUpload, initialQuery }) {
       {setupBanner}
       {setupHint}
 
-      {d.analyzedWith && window.QA_BACKEND_VERSION && d.analyzedWith !== window.QA_BACKEND_VERSION ? (
-        <Reveal delay={101}>
-          <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start', padding: '14px 24px', background: 'var(--banner-warn-bg)', borderLeft: '3px solid var(--banner-warn-border)', marginBottom: 32 }}>
-            <span style={{ color: 'var(--banner-warn-fg)', flex: '0 0 auto', marginTop: 1 }}><Icon name="history" size={16} /></span>
-            <span style={{ fontSize: 13.5, color: 'var(--banner-warn-strong)', lineHeight: 1.55 }}>
-              <b>These results were produced by v{d.analyzedWith}</b> — the server is now running v{window.QA_BACKEND_VERSION}. Restarting the server does not re-analyze: <b>re-upload the transcript</b> to apply the latest fixes.
-            </span>
-          </div>
-        </Reveal>
-      ) : null}
-
-      {d.extractionAlerts ? (
-        <Reveal delay={102}>
-          <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start', padding: '14px 24px', background: 'var(--banner-warn-bg)', borderLeft: '3px solid var(--banner-warn-border)', marginBottom: 32 }}>
-            <span style={{ color: 'var(--banner-warn-fg)', flex: '0 0 auto', marginTop: 1 }}><Icon name="triangle-alert" size={16} /></span>
-            <span style={{ fontSize: 13.5, color: 'var(--banner-warn-strong)', lineHeight: 1.55 }}>
-              <b>Extraction notes:</b> {d.extractionAlerts.join(' · ')}. Each one is named in the server console — if a question you expected is missing, that is where it went.
-            </span>
-          </div>
-        </Reveal>
-      ) : null}
-
-      {d.autoAdjusted ? (
-        <Reveal delay={105}>
-          <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start', padding: '14px 24px', background: 'var(--layer-02)', border: '1px solid var(--border-subtle)', borderLeft: '3px solid var(--teal-60)', marginBottom: 32 }}>
-            <span style={{ color: 'var(--teal-60)', flex: '0 0 auto', marginTop: 1 }}><Icon name="sliders-horizontal" size={16} /></span>
-            <span style={{ fontSize: 13.5, color: 'var(--text-secondary)', lineHeight: 1.55 }}>
-              Nothing grouped at the default threshold, so it was automatically relaxed to <b>{Math.round(d.autoAdjusted * 100)}%</b> for this analysis. Pin a value in Settings if you prefer.
-            </span>
-          </div>
-        </Reveal>
-      ) : null}
+      {(() => {
+        // Informational notices collapse into ONE quiet line: stacked
+        // full-width yellow banners buried the ranked list (the page's
+        // whole point) and made routine notes look like problems
+        const notes = [];
+        if (d.analyzedWith && window.QA_BACKEND_VERSION && d.analyzedWith !== window.QA_BACKEND_VERSION) {
+          notes.push({ icon: 'history', body: (
+            <span><b>These results were produced by v{d.analyzedWith}</b> — the server is now running v{window.QA_BACKEND_VERSION}. Restarting the server does not re-analyze: <b>re-upload the transcript</b> to apply the latest fixes.</span>) });
+        }
+        if (d.extractionAlerts) {
+          notes.push({ icon: 'filter', body: (
+            <span><b>Extraction notes:</b> {d.extractionAlerts.join(' · ')}. Each one is named in the server console — if a question you expected is missing, that is where it went.</span>) });
+        }
+        if (d.autoAdjusted) {
+          notes.push({ icon: 'sliders-horizontal', body: (
+            <span>Nothing grouped at the default threshold, so it was automatically relaxed to <b>{Math.round(d.autoAdjusted * 100)}%</b> for this analysis. Pin a value in Settings if you prefer.</span>) });
+        }
+        if (!notes.length) return null;
+        return (
+          <Reveal delay={101}>
+            <div style={{ border: '1px solid var(--border-subtle)', borderLeft: '3px solid var(--blue-60)', background: 'var(--layer-02)', marginBottom: 32 }}>
+              <button onClick={() => setNotesOpen(!notesOpen)} aria-expanded={notesOpen}
+                style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', padding: '12px 24px', background: 'transparent', border: 'none', cursor: 'pointer', fontFamily: 'var(--font-sans)', fontSize: 13, fontWeight: 500, color: 'var(--text-secondary)', textAlign: 'left' }}>
+                <span style={{ display: 'inline-flex', transform: notesOpen ? 'rotate(90deg)' : 'none', transition: 'transform var(--duration-base) var(--ease-productive)' }}>
+                  <Icon name="chevron-right" size={14} />
+                </span>
+                Analysis notes ({notes.length}) — informational, nothing needs fixing
+              </button>
+              {notesOpen ? notes.map((n, i) => (
+                <div key={i} style={{ display: 'flex', gap: 12, alignItems: 'flex-start', padding: '10px 24px 12px 46px', fontSize: 13.5, color: 'var(--text-secondary)', lineHeight: 1.55, borderTop: '1px solid var(--border-subtle)' }}>
+                  <span style={{ color: 'var(--text-helper)', flex: '0 0 auto', marginTop: 1 }}><Icon name={n.icon} size={15} /></span>
+                  {n.body}
+                </div>
+              )) : null}
+            </div>
+          </Reveal>
+        );
+      })()}
 
       {d.thresholdHint ? (
         <Reveal delay={110}>
@@ -438,7 +454,12 @@ function DashboardView({ onUpload, initialQuery }) {
 
       <Reveal delay={160}>
         <div className="qa-controls" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
-          <span style={{ fontSize: 13, color: 'var(--text-helper)', fontWeight: 500 }}>Ranked · {groups.length} recurring topic{groups.length === 1 ? '' : 's'} <span title="Questions asked 2+ times that merged into a group. Themes (above) count every question; this counts only the repeats.">ⓘ</span></span>
+          <span style={{ fontSize: 13, color: 'var(--text-helper)', fontWeight: 500, display: 'inline-flex', alignItems: 'center', gap: 6 }}>Ranked · {groups.length} recurring topic{groups.length === 1 ? '' : 's'}
+            <span tabIndex={0} role="note" style={{ display: 'inline-flex', color: 'var(--text-helper)', cursor: 'help' }}
+              title={`Questions asked 2+ times that merged into a group. Themes (above) count every question; this counts only the repeats.${d.groupingBar ? ` Questions group together when their wording matches at least ${Math.round(d.groupingBar * 100)}%; borderline pairs are AI-checked.` : ''}`}>
+              <Icon name="info" size={13} />
+            </span>
+          </span>
           <span style={{ display: 'inline-flex', alignItems: 'center', gap: 14 }}>
             <span style={{ display: 'inline-flex' }}>
               {[['count', 'Most asked'], ['trending', 'Trending'], ['newest', 'Newest']].map(([k, l]) => (
@@ -450,7 +471,7 @@ function DashboardView({ onUpload, initialQuery }) {
             <span style={{ display: 'inline-flex' }}>
               {[[null, 'All time'], [90, '90 days'], [30, '30 days']].map(([k, l]) => (
                 <button key={String(k)} onClick={() => { setRangeDays(k); setVisibleCount(PAGE_SIZE); }}
-                  title="Scopes the list below to the newest days OF YOUR DATA (not the calendar)"
+                  title="Counts the most recent days of your uploaded data, not today's calendar date"
                   style={{ height: 26, padding: '0 10px', fontSize: 12, cursor: 'pointer', fontFamily: 'var(--font-sans)', border: '1px solid var(--border-subtle)', marginLeft: -1, background: rangeDays === k ? 'var(--blue-60)' : 'var(--layer-02)', color: rangeDays === k ? '#fff' : 'var(--text-secondary)' }}>{l}</button>
               ))}
             </span>
@@ -468,6 +489,7 @@ function DashboardView({ onUpload, initialQuery }) {
             topic={g.topic} summary={g.summary} seenIn={g.seenIn} aiConfirmed={g.aiConfirmed} theme={g.theme}
             answered={g.answered} needsReview={g.needsReview} dateRange={g.dateRange}
             onRenameTopic={g.topicId ? (name) => renameTopic(g.topicId, name) : null}
+            onFaqTools={g.topicId && onTopics ? onTopics : null}
             defaultOpen={i === 0 && !query} />
         ))}
         {groups.length === 0 ? (
@@ -485,74 +507,6 @@ function DashboardView({ onUpload, initialQuery }) {
           style={{ display: 'block', width: '100%', padding: '13px 0', marginTop: -1, background: 'var(--layer-02)', border: '1px solid var(--border-subtle)', cursor: 'pointer', fontFamily: 'var(--font-sans)', fontSize: 13, color: 'var(--blue-60)' }}>
           Show {Math.min(PAGE_SIZE, groups.length - visibleCount)} more · {groups.length - visibleCount} remaining
         </button>
-      ) : null}
-
-      {uniqueQuestions.length ? (
-        <div style={{ marginTop: 28 }}>
-          <button onClick={() => setShowUnique(!showUnique)}
-            style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'transparent', border: 'none', cursor: 'pointer', fontFamily: 'var(--font-sans)', fontSize: 13, fontWeight: 500, color: 'var(--text-secondary)', padding: 0 }}>
-            <span style={{ display: 'inline-flex', transform: showUnique ? 'rotate(90deg)' : 'none', transition: 'transform var(--duration-base) var(--ease-productive)' }}>
-              <Icon name="chevron-right" size={14} />
-            </span>
-            Unique questions ({uniqueQuestions.length}) — asked only once, kept in every export
-          </button>
-          {showUnique ? uniqueSections.map((section) => (
-            <div key={section.theme} style={{ margin: '14px 0 0' }}>
-              <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '.04em', textTransform: 'uppercase', padding: '0 16px 6px', color: section.theme === 'Needs review' ? 'var(--banner-warn-fg)' : 'var(--text-helper)' }}
-                title={section.theme === 'Needs review' ? "Didn't fit any known category — a recurring pile of these means a new category is being born" : undefined}>
-                {section.theme} ({section.questions.length})
-              </div>
-              <ul style={{ listStyle: 'none', margin: 0, padding: 0, borderLeft: `2px solid ${section.theme === 'Needs review' ? 'var(--banner-warn-border)' : 'var(--border-subtle)'}` }}>
-                {section.questions.map((q, i) => {
-                  const key = `${section.theme}:${i}`;
-                  const open = openUnique === key;
-                  const hasOriginal = !!q.original_message;
-                  return (
-                    <li key={i} onClick={() => hasOriginal && setOpenUnique(open ? null : key)}
-                      title={hasOriginal && !open ? 'Click to see the original Slack message' : undefined}
-                      style={{ padding: '8px 16px', cursor: hasOriginal ? 'pointer' : 'default' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', gap: 16 }}>
-                        <span style={{ fontSize: 13.5, color: 'var(--text-secondary)', lineHeight: 1.45 }}>
-                          {q.qtype ? <span title="What kind of question this is (classified during extraction)" style={{ fontFamily: 'var(--font-mono)', fontSize: 10.5, color: 'var(--text-helper)', background: 'var(--field)', padding: '1px 7px', marginRight: 8, whiteSpace: 'nowrap' }}>{q.qtype}</span> : null}
-                          {q.answered === true ? <span title="A thread reply answered this question" style={{ fontFamily: 'var(--font-mono)', fontSize: 10.5, color: 'var(--tag-ok-fg)', background: 'var(--tag-ok-bg)', padding: '1px 7px', marginRight: 8, whiteSpace: 'nowrap' }}>answered</span> : null}
-                          {q.answered === false ? <span title="This question has a thread but no reply actually answered it" style={{ fontFamily: 'var(--font-mono)', fontSize: 10.5, color: 'var(--tag-err-fg)', background: 'var(--tag-err-bg)', padding: '1px 7px', marginRight: 8, whiteSpace: 'nowrap' }}>unanswered</span> : null}
-                          {q.text}
-                        </span>
-                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, whiteSpace: 'nowrap' }}>
-                          {q.date && q.date !== 'Unknown' ? <span style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--text-placeholder)' }}>{q.date}</span> : null}
-                          {hasOriginal ? <span style={{ display: 'inline-flex', color: 'var(--text-placeholder)', transform: open ? 'rotate(180deg)' : 'none', transition: 'transform var(--duration-base) var(--ease-productive)' }}><Icon name="chevron-down" size={12} /></span> : null}
-                        </span>
-                      </div>
-                      {open ? (
-                        <div style={{ margin: '7px 0 2px', padding: '8px 12px', background: 'var(--field)', fontSize: 12.5, color: 'var(--text-helper)', lineHeight: 1.5 }}>
-                          <span style={{ fontWeight: 600, letterSpacing: '.03em', textTransform: 'uppercase', fontSize: 10.5, marginRight: 8 }}>Original message</span>
-                          {q.original_message}
-                        </div>
-                      ) : null}
-                    </li>
-                  );
-                })}
-              </ul>
-            </div>
-          )) : null}
-        </div>
-      ) : null}
-
-      {d.featureRequests && d.featureRequests.length ? (
-        <div style={{ marginTop: 28 }}>
-          <div style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-secondary)' }}
-            title="Questions classified as feature requests are product feedback, not support questions a doc page resolves — they're routed out of the support funnel">
-            Product feedback ({d.featureRequests.length}) — feature requests, routed out of the support funnel
-          </div>
-          <ul style={{ listStyle: 'none', margin: '12px 0 0', padding: 0, borderLeft: '2px solid var(--purple-60, #8a3ffc)' }}>
-            {d.featureRequests.map((q, i) => (
-              <li key={i} style={{ display: 'flex', justifyContent: 'space-between', gap: 16, padding: '8px 16px' }}>
-                <span style={{ fontSize: 13.5, color: 'var(--text-secondary)', lineHeight: 1.45 }}>{q.text}</span>
-                {q.date && q.date !== 'Unknown' ? <span style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--text-placeholder)', whiteSpace: 'nowrap' }}>{q.date}</span> : null}
-              </li>
-            ))}
-          </ul>
-        </div>
       ) : null}
 
       {(() => {
@@ -596,6 +550,81 @@ function DashboardView({ onUpload, initialQuery }) {
           </div>
         );
       })()}
+
+      {uniqueQuestions.length ? (
+        <div style={{ marginTop: 28 }}>
+          <button onClick={() => setShowUnique(!showUnique)}
+            style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'transparent', border: 'none', cursor: 'pointer', fontFamily: 'var(--font-sans)', fontSize: 13, fontWeight: 500, color: 'var(--text-secondary)', padding: 0 }}>
+            <span style={{ display: 'inline-flex', transform: showUnique ? 'rotate(90deg)' : 'none', transition: 'transform var(--duration-base) var(--ease-productive)' }}>
+              <Icon name="chevron-right" size={14} />
+            </span>
+            Unique questions ({uniqueQuestions.length}) — asked only once, kept in every export
+          </button>
+          {showUnique ? uniqueSections.map((section) => (
+            <div key={section.theme} style={{ margin: '14px 0 0' }}>
+              <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '.04em', textTransform: 'uppercase', padding: '0 16px 6px', color: section.theme === 'Needs review' ? 'var(--banner-warn-fg)' : 'var(--text-helper)' }}
+                title={section.theme === 'Needs review' ? "Didn't fit any known category — a recurring pile of these means a new category is being born" : undefined}>
+                {section.theme} ({section.questions.length})
+              </div>
+              <ul style={{ listStyle: 'none', margin: 0, padding: 0, borderLeft: `2px solid ${section.theme === 'Needs review' ? 'var(--banner-warn-border)' : 'var(--border-subtle)'}` }}>
+                {section.questions.map((q, i) => {
+                  const key = `${section.theme}:${i}`;
+                  const open = openUnique === key;
+                  const hasOriginal = !!q.original_message;
+                  return (
+                    <li key={i} onClick={() => hasOriginal && setOpenUnique(open ? null : key)}
+                      title={hasOriginal && !open ? 'Click to see the original Slack message' : undefined}
+                      style={{ padding: '8px 16px', cursor: hasOriginal ? 'pointer' : 'default' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', gap: 16 }}>
+                        <span style={{ fontSize: 13.5, color: 'var(--text-secondary)', lineHeight: 1.45 }}>
+                          {q.qtype ? <StatusChip title="What kind of question this is (classified during extraction)" style={{ marginRight: 8 }}>{q.qtype}</StatusChip> : null}
+                          {q.answered === true ? <StatusChip kind="ok" title="A thread reply answered this question" style={{ marginRight: 8 }}>answered</StatusChip> : null}
+                          {q.answered === false ? <StatusChip kind="err" title="This question has a thread but no reply actually answered it" style={{ marginRight: 8 }}>unanswered</StatusChip> : null}
+                          {q.text}
+                        </span>
+                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, whiteSpace: 'nowrap' }}>
+                          {q.date && q.date !== 'Unknown' ? <span style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--text-placeholder)' }}>{q.date}</span> : null}
+                          {hasOriginal ? <span style={{ display: 'inline-flex', color: 'var(--text-placeholder)', transform: open ? 'rotate(180deg)' : 'none', transition: 'transform var(--duration-base) var(--ease-productive)' }}><Icon name="chevron-down" size={12} /></span> : null}
+                        </span>
+                      </div>
+                      {open ? (
+                        <div style={{ margin: '7px 0 2px', padding: '8px 12px', background: 'var(--field)', fontSize: 12.5, color: 'var(--text-helper)', lineHeight: 1.5 }}>
+                          <span style={{ fontWeight: 600, letterSpacing: '.03em', textTransform: 'uppercase', fontSize: 10.5, marginRight: 8 }}>Original message</span>
+                          {q.original_message}
+                        </div>
+                      ) : null}
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          )) : null}
+        </div>
+      ) : null}
+
+      {d.featureRequests && d.featureRequests.length ? (
+        <div style={{ marginTop: 28 }}>
+          <button onClick={() => setShowFeedback(!showFeedback)}
+            title="Questions classified as feature requests are product feedback, not support questions a doc page resolves — they're routed out of the support funnel"
+            style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'transparent', border: 'none', cursor: 'pointer', fontFamily: 'var(--font-sans)', fontSize: 13, fontWeight: 500, color: 'var(--text-secondary)', padding: 0 }}>
+            <span style={{ display: 'inline-flex', transform: showFeedback ? 'rotate(90deg)' : 'none', transition: 'transform var(--duration-base) var(--ease-productive)' }}>
+              <Icon name="chevron-right" size={14} />
+            </span>
+            Product feedback ({d.featureRequests.length}) — feature requests, routed out of the support funnel
+          </button>
+          {showFeedback ? (
+          <ul style={{ listStyle: 'none', margin: '12px 0 0', padding: 0, borderLeft: '2px solid var(--purple-60, #8a3ffc)' }}>
+            {d.featureRequests.map((q, i) => (
+              <li key={i} style={{ display: 'flex', justifyContent: 'space-between', gap: 16, padding: '8px 16px' }}>
+                <span style={{ fontSize: 13.5, color: 'var(--text-secondary)', lineHeight: 1.45 }}>{q.text}</span>
+                {q.date && q.date !== 'Unknown' ? <span style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--text-placeholder)', whiteSpace: 'nowrap' }}>{q.date}</span> : null}
+              </li>
+            ))}
+          </ul>
+          ) : null}
+        </div>
+      ) : null}
+
 
       {d.droppedQuestions && d.droppedQuestions.length ? (
         <div style={{ marginTop: 28 }}>

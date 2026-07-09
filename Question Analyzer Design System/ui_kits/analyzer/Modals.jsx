@@ -2,6 +2,8 @@
 function Modal({ open, onClose, children, width = 480 }) {
   const [render, setRender] = React.useState(open);
   const [vis, setVis] = React.useState(false);
+  const boxRef = React.useRef(null);
+  const prevFocus = React.useRef(null);
   React.useEffect(() => {
     if (open) { setRender(true); const r = requestAnimationFrame(() => setVis(true)); return () => cancelAnimationFrame(r); }
     setVis(false); const id = setTimeout(() => setRender(false), 240); return () => clearTimeout(id);
@@ -11,11 +13,41 @@ function Modal({ open, onClose, children, width = 480 }) {
     if (open) window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [open, onClose]);
+  // Focus management: move focus INTO the dialog on open (unless a child
+  // autofocused itself), trap Tab inside, and restore the trigger's focus
+  // on close — keyboard users must never Tab into the page behind the scrim
+  React.useEffect(() => {
+    if (open) {
+      prevFocus.current = document.activeElement;
+      const r = requestAnimationFrame(() => {
+        if (boxRef.current && !boxRef.current.contains(document.activeElement)) {
+          boxRef.current.focus();
+        }
+      });
+      return () => cancelAnimationFrame(r);
+    }
+    if (prevFocus.current && prevFocus.current.focus) {
+      prevFocus.current.focus();
+      prevFocus.current = null;
+    }
+  }, [open]);
+  const trapTab = (e) => {
+    if (e.key !== 'Tab' || !boxRef.current) return;
+    const focusables = Array.from(boxRef.current.querySelectorAll(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'))
+      .filter((el) => !el.disabled && el.offsetParent !== null);
+    if (!focusables.length) return;
+    const first = focusables[0];
+    const last = focusables[focusables.length - 1];
+    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+  };
   if (!render) return null;
   return (
     <div style={{ position: 'fixed', inset: 0, zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
       <div onClick={onClose} style={{ position: 'absolute', inset: 0, background: 'rgba(22,22,22,.55)', opacity: vis ? 1 : 0, transition: 'opacity 220ms var(--ease-entrance)' }} />
-      <div style={{ position: 'relative', width, maxWidth: '92vw', background: 'var(--layer-02)', boxShadow: 'var(--shadow-overlay)', opacity: vis ? 1 : 0, transform: vis ? 'none' : 'translateY(14px) scale(.97)', transition: 'opacity 240ms var(--ease-entrance), transform 240ms var(--ease-entrance)' }}>
+      <div ref={boxRef} tabIndex={-1} role="dialog" aria-modal="true" onKeyDown={trapTab}
+        style={{ position: 'relative', width, maxWidth: '92vw', background: 'var(--layer-02)', boxShadow: 'var(--shadow-overlay)', outline: 'none', opacity: vis ? 1 : 0, transform: vis ? 'none' : 'translateY(14px) scale(.97)', transition: 'opacity 240ms var(--ease-entrance), transform 240ms var(--ease-entrance)' }}>
         {children}
       </div>
     </div>
@@ -402,7 +434,7 @@ function TopicsModal({ open, onClose, onMutated }) {
       .catch((err) => setHistory({ error: err.message }));
   };
 
-  const act = async (fn) => {
+  const act = async (fn, successMessage) => {
     try {
       await fn();
       mutated.current = true;
@@ -410,12 +442,25 @@ function TopicsModal({ open, onClose, onMutated }) {
       // An open history panel must reflect the change too (e.g. the
       // publish marker appearing/disappearing right after the toggle)
       if (historyFor) fetchHistory(historyFor);
+      if (successMessage && window.QA_TOAST) window.QA_TOAST(successMessage);
     } catch (err) { setError(err.message); }
   };
-  const rename = (t) => {
-    const name = window.prompt('Rename this topic:', t.topic);
-    if (!name || !name.trim() || name.trim() === t.topic) return;
-    const clean = name.trim();
+  // In-app panels replace window.prompt/confirm: the OS dialogs clashed
+  // with the design system, and merge-by-typing-the-exact-name was
+  // unusable — it's a picker now.
+  const [panel, setPanel] = React.useState(null); // {kind: 'rename'|'merge'|'delete', id}
+  const [panelText, setPanelText] = React.useState('');
+  const [panelTarget, setPanelTarget] = React.useState('');
+  const openPanel = (kind, t) => {
+    if (panel && panel.kind === kind && panel.id === t.id) { setPanel(null); return; }
+    setPanel({ kind, id: t.id });
+    setPanelText(t.topic || '');
+    setPanelTarget('');
+  };
+  const saveRename = (t) => {
+    const clean = panelText.trim();
+    setPanel(null);
+    if (!clean || clean === t.topic) return;
     act(async () => {
       await window.QA_API.renameTopic(t.id, clean);
       // Patch the loaded analysis in place (same as the dashboard's
@@ -424,17 +469,18 @@ function TopicsModal({ open, onClose, onMutated }) {
       if (results && results.groups) {
         results.groups.forEach((g) => { if (g.topic_id === t.id) g.topic = clean; });
       }
-    });
+    }, 'Topic renamed');
   };
-  const remove = (t) => {
-    if (window.confirm(`Delete the topic "${t.topic}" from the learned bank?`)) act(() => window.QA_API.deleteTopic(t.id));
+  const saveMerge = (t) => {
+    const target = (topics || []).find((x) => x.id === panelTarget);
+    setPanel(null);
+    if (!target) return;
+    act(() => window.QA_API.mergeTopics(t.id, target.id),
+        `Merged into "${target.topic}"`);
   };
-  const merge = (t) => {
-    const name = window.prompt(`Merge "${t.topic}" into which topic? Type its exact name:`);
-    if (!name || !name.trim()) return;
-    const target = (topics || []).find((x) => x.topic && x.topic.toLowerCase() === name.trim().toLowerCase() && x.id !== t.id);
-    if (!target) { setError(`No other topic named "${name.trim()}"`); return; }
-    act(() => window.QA_API.mergeTopics(t.id, target.id));
+  const saveDelete = (t) => {
+    setPanel(null);
+    act(() => window.QA_API.deleteTopic(t.id), 'Topic deleted');
   };
 
   const iconBtn = (title, name, onClick, color) => (
@@ -463,7 +509,8 @@ function TopicsModal({ open, onClose, onMutated }) {
     setAnswerText(t.curated_answer || '');
   };
   const saveAnswer = (t, text) => {
-    act(() => window.QA_API.setTopicAnswer(t.id, text));
+    act(() => window.QA_API.setTopicAnswer(t.id, text),
+        text ? 'Curated answer saved' : 'Curated answer removed');
     setAnswerFor(null);
   };
 
@@ -528,17 +575,49 @@ function TopicsModal({ open, onClose, onMutated }) {
                   {iconBtn(t.faq_published
                     ? `Unmark as published (was ${t.faq_published})`
                     : 'Mark FAQ as published: stamps today as a marker on the history chart, so you can watch ask-volume fall after your doc went live',
-                    'check', () => act(() => window.QA_API.setTopicPublished(t.id, !t.faq_published)),
+                    'check', () => act(() => window.QA_API.setTopicPublished(t.id, !t.faq_published),
+                      t.faq_published ? 'Unmarked as published' : 'Marked as published — the history chart now tracks the effect'),
                     'var(--green-60, #198038)')}
                   {iconBtn('Volume over time (across all analyses)', 'chart-line', () => showHistory(t), 'var(--teal-60)')}
                   {iconBtn(t.curated_answer
                     ? `Edit the curated answer (saved ${t.answer_updated || ''})`
                     : 'Save a curated answer: approved wording that every FAQ export uses instead of a fresh draft',
                     'file-text', () => editAnswer(t), 'var(--blue-60)')}
-                  {iconBtn('Rename', 'pencil', () => rename(t), 'var(--blue-60)')}
-                  {iconBtn('Merge into another topic', 'git-merge', () => merge(t), 'var(--purple-60)')}
-                  {iconBtn('Delete', 'trash-2', () => remove(t), 'var(--red-60)')}
+                  {iconBtn('Rename', 'pencil', () => openPanel('rename', t), 'var(--blue-60)')}
+                  {iconBtn('Merge into another topic', 'git-merge', () => openPanel('merge', t), 'var(--purple-60)')}
+                  {iconBtn('Delete', 'trash-2', () => openPanel('delete', t), 'var(--red-60)')}
                 </div>
+                {panel && panel.id === t.id && panel.kind === 'rename' ? (
+                  <div style={{ display: 'flex', gap: 8, alignItems: 'center', padding: '0 14px 12px' }}>
+                    <input autoFocus value={panelText} onChange={(e) => setPanelText(e.target.value)}
+                      onKeyDown={(e) => { if (e.key === 'Enter') saveRename(t); if (e.key === 'Escape') setPanel(null); }}
+                      style={{ flex: 1, fontFamily: 'var(--font-sans)', fontSize: 13, color: 'var(--text-primary)', background: 'var(--field)', border: '1px solid var(--border-subtle)', padding: '7px 10px', outline: 'none' }} />
+                    <Button variant="ghost" size="sm" onClick={() => setPanel(null)}>Cancel</Button>
+                    <Button variant="primary" size="sm" onClick={() => saveRename(t)}>Rename</Button>
+                  </div>
+                ) : null}
+                {panel && panel.id === t.id && panel.kind === 'merge' ? (
+                  <div style={{ display: 'flex', gap: 8, alignItems: 'center', padding: '0 14px 12px' }}>
+                    <select value={panelTarget} onChange={(e) => setPanelTarget(e.target.value)}
+                      style={{ flex: 1, fontFamily: 'var(--font-sans)', fontSize: 13, color: 'var(--text-primary)', background: 'var(--field)', border: '1px solid var(--border-subtle)', padding: '7px 10px' }}>
+                      <option value="">Merge "{t.topic}" into…</option>
+                      {(topics || []).filter((x) => x.id !== t.id && x.topic).map((x) => (
+                        <option key={x.id} value={x.id}>{x.topic}</option>
+                      ))}
+                    </select>
+                    <Button variant="ghost" size="sm" onClick={() => setPanel(null)}>Cancel</Button>
+                    <Button variant="primary" size="sm" disabled={!panelTarget} onClick={() => saveMerge(t)}>Merge</Button>
+                  </div>
+                ) : null}
+                {panel && panel.id === t.id && panel.kind === 'delete' ? (
+                  <div style={{ display: 'flex', gap: 8, alignItems: 'center', padding: '0 14px 12px' }}>
+                    <span style={{ flex: 1, fontSize: 12.5, color: 'var(--text-secondary)' }}>
+                      Delete "{t.topic}" from the learned bank? Its name, history badge, and any curated answer are removed.
+                    </span>
+                    <Button variant="ghost" size="sm" onClick={() => setPanel(null)}>Cancel</Button>
+                    <Button variant="danger" size="sm" onClick={() => saveDelete(t)}>Delete</Button>
+                  </div>
+                ) : null}
                 {answerFor === t.id ? (
                   <div style={{ padding: '0 14px 12px' }}>
                     <div style={{ fontSize: 11.5, color: 'var(--text-helper)', marginBottom: 6 }}>
@@ -614,7 +693,11 @@ function SettingsModal({ open, onClose }) {
     if (open) window.QA_SETTINGS.loadServerDefaults().then(setSettings);
   }, [open]);
 
-  const save = () => { window.QA_SETTINGS.set(settings); onClose(); };
+  const save = () => {
+    window.QA_SETTINGS.set(settings);
+    if (window.QA_TOAST) window.QA_TOAST('Settings saved — they apply to the next analysis');
+    onClose();
+  };
 
   return (
     <Modal open={open} onClose={onClose} width={480}>

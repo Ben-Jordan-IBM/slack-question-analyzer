@@ -1,4 +1,28 @@
 // Question Analyzer — consolidated app.
+// Lightweight toast host: every mutation (rename, merge, publish, answer
+// save, settings) confirms itself instead of succeeding silently.
+function ToastHost() {
+  const [toasts, setToasts] = React.useState([]);
+  React.useEffect(() => {
+    window.QA_TOAST = (message) => {
+      const id = Date.now() + Math.random();
+      setToasts((t) => [...t, { id, message }]);
+      setTimeout(() => setToasts((t) => t.filter((x) => x.id !== id)), 2600);
+    };
+    return () => { delete window.QA_TOAST; };
+  }, []);
+  if (!toasts.length) return null;
+  return (
+    <div style={{ position: 'fixed', bottom: 22, left: '50%', transform: 'translateX(-50%)', zIndex: 300, display: 'flex', flexDirection: 'column', gap: 8, alignItems: 'center', pointerEvents: 'none' }}>
+      {toasts.map((t) => (
+        <div key={t.id} className="qa-toast" style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 18px', fontFamily: 'var(--font-sans)', fontSize: 13, background: 'var(--text-primary)', color: 'var(--background)', boxShadow: 'var(--shadow-md, 0 2px 6px rgba(0,0,0,.3))' }}>
+          <Icon name="check" size={14} /> {t.message}
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function App() {
   const [view, setView] = React.useState('dashboard');
   const [analysisVersion, setAnalysisVersion] = React.useState(0);
@@ -48,7 +72,8 @@ function App() {
       <div style={{ flex: 1, minHeight: 0, overflowY: 'auto', background: 'var(--background)' }}>
         <div key={`${view}:${analysisVersion}`} className="qa-view">
           {view === 'dashboard'
-            ? <DashboardView onUpload={() => setUploadOpen(true)} initialQuery={dashQuery} />
+            ? <DashboardView onUpload={() => setUploadOpen(true)} initialQuery={dashQuery}
+                onTopics={() => setTopicsOpen(true)} />
             : <WeekView onInspect={inspectTopic} />}
         </div>
       </div>
@@ -58,6 +83,7 @@ function App() {
       <TopicsModal open={topicsOpen} onClose={() => setTopicsOpen(false)}
         onMutated={() => setAnalysisVersion((v) => v + 1)} />
       <SettingsModal open={settingsOpen} onClose={() => setSettingsOpen(false)} />
+      <ToastHost />
     </div>
   );
 }

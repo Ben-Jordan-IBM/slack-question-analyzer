@@ -222,6 +222,24 @@ function AreaChart({ data, labels, width = 720, height = 240, accent = 'var(--bl
   );
 }
 
+// Small status chip with consistent tokens — these were copy-pasted
+// inline styles in RankedRow/DashboardView and had started to drift.
+function StatusChip({ kind = 'neutral', children, title, style = {} }) {
+  const kinds = {
+    ok:      { color: 'var(--tag-ok-fg)',   background: 'var(--tag-ok-bg)' },
+    err:     { color: 'var(--tag-err-fg)',  background: 'var(--tag-err-bg)' },
+    warn:    { color: 'var(--tag-warn-fg)', background: 'var(--tag-warn-bg)' },
+    neutral: { color: 'var(--text-helper)', background: 'var(--field)' },
+    accent:  { color: 'var(--link)',        background: 'var(--chip-active-bg)' },
+  };
+  return (
+    <span title={title} style={{ fontFamily: 'var(--font-mono)', fontSize: 10.5, padding: '1px 7px', whiteSpace: 'nowrap', ...(kinds[kind] || kinds.neutral), ...style }}>
+      {children}
+    </span>
+  );
+}
+window.StatusChip = StatusChip;
+
 // NEW / ▲2 / ▼1 movement marker.
 function MovementBadge({ movement }) {
   if (movement === 'new') {

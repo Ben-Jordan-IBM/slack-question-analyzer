@@ -110,6 +110,20 @@ select:focus-visible,
    input must not ALSO get a rectangle outlined around the whole track */
 input[type="range"]:focus-visible { outline: none !important; }
 
+/* Theme chips: a resting hover lift so they read as pressable */
+.qa-chip { transition: background var(--duration-base) var(--ease-productive), border-color var(--duration-base) var(--ease-productive); }
+.qa-chip:hover { border-color: var(--border-strong) !important; }
+
+/* Toast entrance (skipped for reduced-motion users) */
+@keyframes qa-toast-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: none; }
+}
+.qa-toast { animation: qa-toast-in 200ms var(--ease-entrance); }
+@media (prefers-reduced-motion: reduce) {
+  .qa-toast { animation: none; }
+}
+
 /* Placeholders were browser-default gray — illegible on dark fields */
 ::placeholder { color: var(--text-placeholder); opacity: 1; }
 
@@ -134,6 +148,13 @@ input[type="range"]:focus-visible { outline: none !important; }
   /* Week in Review hero: the fixed 320px side column stacks below */
   .qa-hero { grid-template-columns: 1fr !important; }
   .qa-page h2 { font-size: 24px !important; }
+  /* Ranked rows: shrink the decorative count bar so the question text
+     keeps its room at split-screen widths */
+  .qa-rr-6 { grid-template-columns: 30px 52px 1fr 64px 46px 22px !important; }
+  .qa-rr-5 { grid-template-columns: 34px 1fr 64px 46px 22px !important; }
+  /* Stat band: when the row wraps, the auto-margin top stat detaches —
+     let it flow with the tiles instead */
+  .qa-topstat { margin-left: 0 !important; text-align: left !important; }
 }
 
 @media (max-width: 720px) {

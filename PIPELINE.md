@@ -1,4 +1,4 @@
-# The Question Funnel — Pipeline Spec (v2.61.2, prompt pack 26, taxonomy v5)
+# The Question Funnel — Pipeline Spec (v2.62.0, prompt pack 26, taxonomy v5)
 
 > The stages below describe the CURRENT architecture. The change-by-change
 > history of how it got here (14 measured eval rounds through v2.40, plus
@@ -370,6 +370,23 @@ clustering is under-forming upstream — that's the real problem, not a
 fuller-looking output.
 
 ## Appendix — design history by eval round
+
+> **v2.62 (UX round, from the two-lens UI scan):** informational notices
+> (version mismatch, extraction notes, auto-adjusted threshold) collapse
+> into one neutral "Analysis notes" disclosure instead of stacking as
+> yellow banners above the ranked list; every bank mutation confirms
+> itself with a toast; rename/merge/delete use in-app panels instead of
+> OS prompt/confirm dialogs (merge is a picker now, not
+> type-the-exact-name); dashboard topic rename is inline-edit with the
+> pencil revealed on row hover; modals trap and restore keyboard focus;
+> the Top-theme stat filters on click; the section order puts the
+> unanswered backlog directly under the ranked list and Product feedback
+> becomes collapsible like its siblings; row metadata speaks support
+> language ('wording match', 'verified by AI') with the grouping bar
+> moved into the info tooltip; the FAQ workflow gets a dashboard entry
+> point in every expanded topic row; status chips are one shared
+> component; ranked rows respect prefers-reduced-motion and reflow at
+> split width; the empty state matches the paste-first modal.
 
 > **v2.61.2 (full-audit round):** two-agent audit of v2.60.2-v2.61.1
 > plus a holistic repo sweep. Ship-blocker found and fixed: the week

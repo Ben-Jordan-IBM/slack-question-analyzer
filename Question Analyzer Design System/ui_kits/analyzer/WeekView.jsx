@@ -63,7 +63,7 @@ function WeekView({ onInspect }) {
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
           <div>
             <div style={{ fontSize: 11, color: 'var(--text-helper)', fontWeight: 500 }}>
-              Week in review
+              Week in Review
             </div>
             {(() => {
               // Step a calendar week at a time; the arrows stop at the
