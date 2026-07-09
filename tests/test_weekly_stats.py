@@ -88,6 +88,11 @@ def test_compute_weekly_stats_for_a_selected_week():
     assert weekly['latestWeek'] == '2024-03-18'  # newest data week unchanged
     assert weekly['totalThisWeek'] == 3   # Mar 17, 16, 15
     assert weekly['totalLastWeek'] == 2   # Mar 10, 9
+    # The trend AXIS never moves with the selection — it stays anchored to
+    # the newest data week so the chart dots don't shift under the cursor
+    assert weekly['trendWeeks'][-1] == '2024-03-18'
+    assert weekly['trend'][-1] == 3       # latest week's count, unchanged
+    assert '2024-03-11' in weekly['trendWeeks']  # selected dot highlightable
     questions = {g['question'] for g in weekly['groups']}
     assert 'What is the deploy schedule?' in questions
     assert 'Where are the logs?' in questions

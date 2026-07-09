@@ -68,7 +68,7 @@ function smoothPath(pts) {
 }
 
 // Polished animated area chart.
-function AreaChart({ data, labels, width = 720, height = 240, accent = 'var(--blue-60)', marker = null, onPointClick = null }) {
+function AreaChart({ data, labels, width = 720, height = 240, accent = 'var(--blue-60)', marker = null, onPointClick = null, selected = null }) {
   const padL = 16, padR = 16, padT = 30, padB = 28;
   const plotW = width - padL - padR, plotH = height - padT - padB;
   const max = Math.max(...data) * 1.18, min = Math.min(...data) * 0.6;
@@ -105,24 +105,44 @@ function AreaChart({ data, labels, width = 720, height = 240, accent = 'var(--bl
     return () => clearTimeout(id);
   }, []);
 
-  const indexFromEvent = (e) => {
+  // A click only counts as "clicking the bubble" when it lands NEAR a
+  // point — clicking empty chart area must never navigate (snapping every
+  // stray click to the nearest week made the chart feel possessed)
+  const CLICK_RADIUS = 22;
+  const pointFromEvent = (e) => {
     const r = svgRef.current.getBoundingClientRect();
     const mx = ((e.clientX - r.left) / r.width) * width;
-    const idx = Math.round((mx - padL) / (plotW / span));
-    return Math.max(0, Math.min(data.length - 1, idx));
+    const my = ((e.clientY - r.top) / r.height) * height;
+    const idx = Math.max(0, Math.min(data.length - 1,
+      Math.round((mx - padL) / (plotW / span))));
+    const near = Math.abs(mx - x(idx)) <= CLICK_RADIUS
+      && Math.abs(my - y(data[idx])) <= CLICK_RADIUS * 1.6;
+    return { idx, near };
   };
-  const onMove = (e) => setHover(indexFromEvent(e));
+  const [hoverNear, setHoverNear] = React.useState(false);
+  const onMove = (e) => {
+    const { idx, near } = pointFromEvent(e);
+    setHover(idx);
+    setHoverNear(near);
+  };
 
   const last = data.length - 1;
   const uid = React.useMemo(() => 'ac' + Math.random().toString(36).slice(2, 8), []);
 
   return (
     <svg ref={svgRef} viewBox={`0 0 ${width} ${height}`}
-      style={{ width: '100%', height: 'auto', display: 'block', cursor: onPointClick && hover != null ? 'pointer' : 'default' }}
-      onMouseMove={onMove} onMouseLeave={() => setHover(null)}
-      // Index from the CLICK coordinates, not hover state: a touch tap
-      // fires click without any mousemove, and must still navigate
-      onClick={(e) => { if (onPointClick) onPointClick(indexFromEvent(e)); }}
+      style={{ width: '100%', height: 'auto', display: 'block', cursor: onPointClick && hoverNear ? 'pointer' : 'default' }}
+      onMouseMove={onMove} onMouseLeave={() => { setHover(null); setHoverNear(false); }}
+      // Clicking must not focus the svg (that drew a focus rectangle
+      // around the whole chart); Tab still reaches it for keyboard nav
+      onMouseDown={(e) => e.preventDefault()}
+      // Coordinates from the CLICK itself (touch taps fire no mousemove),
+      // and only clicks near a point navigate
+      onClick={(e) => {
+        if (!onPointClick) return;
+        const { idx, near } = pointFromEvent(e);
+        if (near) onPointClick(idx);
+      }}
       tabIndex={onPointClick ? 0 : undefined}
       role={onPointClick ? 'group' : undefined}
       aria-label={onPointClick ? 'Weekly trend chart. Use arrow keys to pick a week, Enter to open it.' : undefined}
@@ -180,6 +200,13 @@ function AreaChart({ data, labels, width = 720, height = 240, accent = 'var(--bl
       ))}
       {/* live pulse on latest */}
       {drawn ? <circle cx={pts[last].x} cy={pts[last].y} r="4.5" fill="none" stroke={accent} strokeWidth="2" className="qa-pulse" /> : null}
+      {/* selected-week highlight: the picked dot, unmistakably */}
+      {selected != null && pts[selected] ? (
+        <g>
+          <circle cx={pts[selected].x} cy={pts[selected].y} r="8" fill="none" stroke={accent} strokeWidth="2" opacity="0.9" />
+          <circle cx={pts[selected].x} cy={pts[selected].y} r="3.4" fill={accent} />
+        </g>
+      ) : null}
       {/* optional event marker (e.g. "FAQ published") at a data point */}
       {marker && pts[marker.index] ? (
         <g>

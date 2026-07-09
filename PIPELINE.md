@@ -1,4 +1,4 @@
-# The Question Funnel — Pipeline Spec (v2.60.3, prompt pack 26, taxonomy v5)
+# The Question Funnel — Pipeline Spec (v2.61.0, prompt pack 26, taxonomy v5)
 
 > The stages below describe the CURRENT architecture. The change-by-change
 > history of how it got here (14 measured eval rounds through v2.40, plus
@@ -370,6 +370,19 @@ clustering is under-forming upstream — that's the real problem, not a
 fuller-looking output.
 
 ## Appendix — design history by eval round
+
+> **v2.61 (week-chart interaction fix):** field feedback: clicking the
+> trend dots felt broken, for two compounding reasons. (1) EVERY click
+> anywhere on the chart snapped to the nearest week — clicks now
+> hit-test against the actual point (a ~22-unit radius) and empty-area
+> clicks do nothing. (2) Each selection RE-ANCHORED the trend axis to
+> the selected week, so all the dots shifted under the cursor after
+> every click and successive clicks compounded backward — the axis is
+> now permanently anchored to the newest data week; selecting a week
+> highlights its dot (accent ring) and swaps the stats, while the chart
+> stays planted. Also: clicking no longer draws the keyboard focus
+> rectangle around the chart (focus is prevented on mousedown; Tab
+> still reaches it).
 
 > **v2.60.1 (integration-audit fixes):** a two-agent integration audit
 > plus a full-browser smoke of everything working together. Verified

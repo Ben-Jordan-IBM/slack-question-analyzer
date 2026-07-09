@@ -85,9 +85,10 @@ function WeekView({ onInspect }) {
           <div style={{ padding: '22px 26px 14px' }}>
             <div style={{ fontSize: 11, color: 'var(--text-helper)', fontWeight: 500, marginBottom: 4 }}>Weekly question volume</div>
             <AreaChart data={d.trend} labels={d.trendLabels} width={560} height={232}
+              selected={d.trendWeeks ? (d.trendWeeks.indexOf(d.week) === -1 ? null : d.trendWeeks.indexOf(d.week)) : null}
               onPointClick={(i) => { if (d.trendWeeks && d.trendWeeks[i]) setSelectedWeek(d.trendWeeks[i]); }} />
             <div style={{ fontSize: 11, color: 'var(--text-placeholder)', marginTop: 2 }}>
-              Calendar weeks (Mon – Sun), labeled by their Monday. Click a point to review that week.
+              Calendar weeks (Mon – Sun), labeled by their Monday. Click a dot to review that week.
             </div>
           </div>
           <div style={{ padding: '22px 26px', display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 20, borderLeft: '1px solid var(--border-subtle)', background: 'var(--field)' }}>

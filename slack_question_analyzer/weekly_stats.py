@@ -143,14 +143,18 @@ def compute_weekly_stats(results: Dict,
         """0 = the selected calendar week, 1 = the week before, ..."""
         return (selected_monday - monday_of(d)).days // 7
 
-    # Overall volume trend, oldest week first, ending at the selected week
+    # Overall volume trend, oldest week first. The axis is ALWAYS anchored
+    # to the newest data week — selecting a past week highlights its dot
+    # and changes the stats, but never shifts the chart under the cursor
+    # (rebasing the axis per click made navigation feel broken: every
+    # click moved all the dots).
     week_totals = [0] * TREND_WEEKS
     for d in all_dates:
-        idx = week_index(d)
+        idx = (latest_monday - monday_of(d)).days // 7
         if 0 <= idx < TREND_WEEKS:
             week_totals[idx] += 1
     trend = list(reversed(week_totals))
-    trend_mondays = [selected_monday - timedelta(days=7 * idx)
+    trend_mondays = [latest_monday - timedelta(days=7 * idx)
                      for idx in reversed(range(TREND_WEEKS))]
     trend_labels = [_short_date(m) for m in trend_mondays]
 
@@ -198,8 +202,10 @@ def compute_weekly_stats(results: Dict,
             ],
         })
 
-    total_this_week = week_totals[0]
-    total_last_week = week_totals[1] if TREND_WEEKS > 1 else 0
+    # Selected-week totals come from week_index (selected-relative), not
+    # from the latest-anchored trend array
+    total_this_week = sum(1 for d in all_dates if week_index(d) == 0)
+    total_last_week = sum(1 for d in all_dates if week_index(d) == 1)
     if total_last_week > 0:
         delta_pct = round((total_this_week - total_last_week) / total_last_week * 100)
     else:
