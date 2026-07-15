@@ -1,4 +1,4 @@
-# The Question Funnel — Pipeline Spec (v2.62.0, prompt pack 26, taxonomy v5)
+# The Question Funnel — Pipeline Spec (v2.62.1, prompt pack 26, taxonomy v5)
 
 > The stages below describe the CURRENT architecture. The change-by-change
 > history of how it got here (14 measured eval rounds through v2.40, plus

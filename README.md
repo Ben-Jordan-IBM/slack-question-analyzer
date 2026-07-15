@@ -2,6 +2,10 @@
 
 Turn a messy pile of Slack messages into a clear, ranked answer to one question: **"What do people keep asking us?"** It runs entirely on your own computer, for free, with nothing ever uploaded anywhere.
 
+<p align="center">
+  <img src="docs/media/hero.png" alt="The dashboard: most-asked questions ranked by frequency, with themes, stats, and answered badges" width="920">
+</p>
+
 ## What is this?
 
 If you run a support channel, the same questions arrive over and over, phrased fifty different ways, scattered across weeks, buried between answers and chit-chat. Reading it all by hand doesn't scale, and pasting customer conversations into a cloud AI is a privacy problem.
@@ -17,6 +21,32 @@ This tool does the reading for you, locally. Drop in a Slack transcript (a text 
 Everything (the AI models, the analysis, the results) runs and stays on your machine via [Ollama](https://ollama.com). No API keys, no subscription, no cloud, no transcript ever leaving your computer.
 
 **Built for non-technical users**: install is one double-click script, daily use is one double-click, updating is one double-click, and when anything is wrong the built-in `doctor` command tells you exactly what and how to fix it, in plain English.
+
+## See it in action
+
+**Expand any topic to see every real phrasing, each marked answered or unanswered:**
+
+<img src="docs/media/expand.gif" alt="Expanding a ranked topic to reveal its individual questions with answered and unanswered badges" width="920">
+
+**Filter the whole dashboard by theme with one click:**
+
+<img src="docs/media/themes.gif" alt="Clicking a theme chip to filter the ranked list, then clearing the filter" width="920">
+
+**Week in Review: click a dot on the trend, or step with the arrows, to replay any week:**
+
+<img src="docs/media/week.gif" alt="Navigating between calendar weeks by clicking points on the trend chart" width="920">
+
+**Paste a Slack thread straight in, names and timestamps included, no export needed:**
+
+<img src="docs/media/paste.png" alt="The Add a transcript window with a Slack thread pasted into the paste box" width="920">
+
+**Every topic keeps its history across analyses, including your published FAQs:**
+
+<img src="docs/media/faq.png" alt="The Learned topics window showing a topic's volume-over-time chart with FAQ tracking chips" width="920">
+
+**Dark mode included:**
+
+<img src="docs/media/dark.png" alt="The dashboard rendered in dark mode" width="920">
 
 ## Why you can trust what it tells you
 
@@ -441,7 +471,7 @@ The tool generates a JSON file with the following structure:
     "similarity_threshold": 0.85,
     "model": "nomic-embed-text",
     "provider": "ollama",
-    "app_version": "2.62.0",
+    "app_version": "2.62.1",
     "prompt_pack": 26,
     "routing": {"taxonomy_version": 5, "routed": 12, "needs_review": 1},
     "llm_stats": {"verify_true": 2, "audit_evictions": 1}
@@ -696,6 +726,7 @@ slack-question-analyzer/
 │   └── exporters.py        # CSV / Markdown export
 ├── tests/                  # pytest suite (no Ollama needed)
 ├── fixtures/               # Labeled eval transcripts + answer keys
+├── docs/media/             # README screenshots and GIFs
 ├── taxonomy.json           # Routing buckets (versioned data; see Your Data to customize)
 ├── seed_topics.json        # Curated topic names for the bank's first run
 ├── api_server.py           # Flask API + dashboard server
